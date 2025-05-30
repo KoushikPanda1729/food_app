@@ -1,0 +1,2 @@
+/Users/mdmuradhossin/dev/project/StackFood-User-App/android/app/.cxx/RelWithDebInfo/4t15u1j1/x86/CMakeFiles/edit_cache.dir
+/Users/mdmuradhossin/dev/project/StackFood-User-App/android/app/.cxx/RelWithDebInfo/4t15u1j1/x86/CMakeFiles/rebuild_cache.dir
