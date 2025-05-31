@@ -41,7 +41,11 @@ class CheckoutScreen extends StatefulWidget {
   final List<CartModel>? cartList;
   final bool fromCart;
   final bool fromDineInPage;
-  const CheckoutScreen({super.key, required this.fromCart, required this.cartList, this.fromDineInPage = false});
+  const CheckoutScreen(
+      {super.key,
+      required this.fromCart,
+      required this.cartList,
+      this.fromDineInPage = false});
 
   @override
   CheckoutScreenState createState() => CheckoutScreenState();
@@ -66,16 +70,21 @@ class CheckoutScreenState extends State<CheckoutScreen> {
   final serviceFeeTooltipController = JustTheController();
   final deliveryFeeTooltipController = JustTheController();
 
-  final ExpansionTileController expansionTileController = ExpansionTileController();
+  final ExpansionTileController expansionTileController =
+      ExpansionTileController();
 
-  final TextEditingController guestContactPersonNameController = TextEditingController();
-  final TextEditingController guestContactPersonNumberController = TextEditingController();
+  final TextEditingController guestContactPersonNameController =
+      TextEditingController();
+  final TextEditingController guestContactPersonNumberController =
+      TextEditingController();
   final TextEditingController guestEmailController = TextEditingController();
   final FocusNode guestNumberNode = FocusNode();
   final FocusNode guestEmailNode = FocusNode();
 
-  final TextEditingController estimateArrivalDateController = TextEditingController();
-  final TextEditingController estimateArrivalTimeController = TextEditingController();
+  final TextEditingController estimateArrivalDateController =
+      TextEditingController();
+  final TextEditingController estimateArrivalTimeController =
+      TextEditingController();
 
   final ScrollController scrollController = ScrollController();
   final ScrollController deliveryOptionScrollController = ScrollController();
@@ -93,13 +102,17 @@ class CheckoutScreenState extends State<CheckoutScreen> {
   Future<void> initCall() async {
     bool isLoggedIn = AuthHelper.isLoggedIn();
 
-    Get.find<CheckoutController>().streetNumberController.text = AddressHelper.getAddressFromSharedPref()!.road ?? '';
-    Get.find<CheckoutController>().houseController.text = AddressHelper.getAddressFromSharedPref()!.house ?? '';
-    Get.find<CheckoutController>().floorController.text = AddressHelper.getAddressFromSharedPref()!.floor ?? '';
+    Get.find<CheckoutController>().streetNumberController.text =
+        AddressHelper.getAddressFromSharedPref()!.road ?? '';
+    Get.find<CheckoutController>().houseController.text =
+        AddressHelper.getAddressFromSharedPref()!.house ?? '';
+    Get.find<CheckoutController>().floorController.text =
+        AddressHelper.getAddressFromSharedPref()!.floor ?? '';
     Get.find<CheckoutController>().couponController.text = '';
 
     Get.find<CheckoutController>().getDmTipMostTapped();
-    Get.find<CheckoutController>().setPreferenceTimeForView('', false, isUpdate: false);
+    Get.find<CheckoutController>()
+        .setPreferenceTimeForView('', false, isUpdate: false);
     Get.find<CheckoutController>().setCustomDate(null, false, canUpdate: false);
 
     Get.find<CheckoutController>().getOfflineMethodList();
@@ -108,97 +121,117 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
     Get.find<LocationController>().getZone(
       AddressHelper.getAddressFromSharedPref()!.latitude,
-      AddressHelper.getAddressFromSharedPref()!.longitude, false, updateInAddress: true,
+      AddressHelper.getAddressFromSharedPref()!.longitude,
+      false,
+      updateInAddress: true,
     );
 
     _cartList = [];
     await Get.find<CartController>().getCartDataOnline();
 
-    if(isLoggedIn){
-      if(Get.find<ProfileController>().userInfoModel == null && Get.find<ProfileController>().userInfoModel?.userInfo == null) {
+    if (isLoggedIn) {
+      if (Get.find<ProfileController>().userInfoModel == null &&
+          Get.find<ProfileController>().userInfoModel?.userInfo == null) {
         Get.find<ProfileController>().getUserInfo();
       }
 
-      Get.find<CouponController>().getCouponList(/*restaurantId: _cartList![0].product!.restaurantId*/);
+      Get.find<CouponController>().getCouponList(
+          /*restaurantId: _cartList![0].product!.restaurantId*/);
 
-      if(Get.find<AddressController>().addressList == null) {
+      if (Get.find<AddressController>().addressList == null) {
         Get.find<AddressController>().getAddressList(canInsertAddress: true);
       }
     }
 
-    widget.fromCart ? _cartList!.addAll(Get.find<CartController>().cartList) : _cartList!.addAll(widget.cartList!);
-    Get.find<CheckoutController>().setRestaurantDetails(restaurantId: _cartList![0].product!.restaurantId);
+    widget.fromCart
+        ? _cartList!.addAll(Get.find<CartController>().cartList)
+        : _cartList!.addAll(widget.cartList!);
+    Get.find<CheckoutController>().setRestaurantDetails(
+        restaurantId: _cartList![0].product!.restaurantId);
 
-    Get.find<CheckoutController>().initCheckoutData(_cartList![0].product!.restaurantId);
-
+    Get.find<CheckoutController>()
+        .initCheckoutData(_cartList![0].product!.restaurantId);
 
     Get.find<CouponController>().setCoupon('', isUpdate: false);
 
     Get.find<CheckoutController>().stopLoader(isUpdate: false);
     Get.find<CheckoutController>().updateTimeSlot(0, false, notify: false);
 
-    _isCashOnDeliveryActive = Get.find<SplashController>().configModel!.cashOnDelivery;
-    _isDigitalPaymentActive = Get.find<SplashController>().configModel!.digitalPayment;
-    _isOfflinePaymentActive = Get.find<SplashController>().configModel!.offlinePaymentStatus!;
-    _isWalletActive = Get.find<SplashController>().configModel!.customerWalletStatus == 1;
+    _isCashOnDeliveryActive =
+        Get.find<SplashController>().configModel!.cashOnDelivery;
+    _isDigitalPaymentActive =
+        Get.find<SplashController>().configModel!.digitalPayment;
+    _isOfflinePaymentActive =
+        Get.find<SplashController>().configModel!.offlinePaymentStatus!;
+    _isWalletActive =
+        Get.find<SplashController>().configModel!.customerWalletStatus == 1;
 
     Get.find<CheckoutController>().updateTips(
-      Get.find<AuthController>().getDmTipIndex().isNotEmpty ? int.parse(Get.find<AuthController>().getDmTipIndex()) : 0, notify: false,
+      Get.find<AuthController>().getDmTipIndex().isNotEmpty
+          ? int.parse(Get.find<AuthController>().getDmTipIndex())
+          : 0,
+      notify: false,
     );
-    Get.find<CheckoutController>().tipController.text = Get.find<CheckoutController>().selectedTips != -1 ? AppConstants.tips[Get.find<CheckoutController>().selectedTips] : '';
+    Get.find<CheckoutController>().tipController.text =
+        Get.find<CheckoutController>().selectedTips != -1
+            ? AppConstants.tips[Get.find<CheckoutController>().selectedTips]
+            : '';
 
     setSinglePaymentActive();
 
     Future.delayed(const Duration(milliseconds: 500), () {
-
-      if(!Get.find<SplashController>().configModel!.homeDelivery! && Get.find<SplashController>().configModel!.takeAway!) {
+      if (!Get.find<SplashController>().configModel!.homeDelivery! &&
+          Get.find<SplashController>().configModel!.takeAway!) {
         Get.find<CheckoutController>().setOrderType('take_away', notify: true);
       }
 
-      if(Get.find<CheckoutController>().isPartialPay){
+      if (Get.find<CheckoutController>().isPartialPay) {
         Get.find<CheckoutController>().changePartialPayment(isUpdate: false);
       }
 
-      if(widget.fromDineInPage) {
+      if (widget.fromDineInPage) {
         _selectDineIn();
       }
     });
 
-    if(AuthHelper.isLoggedIn()) {
-      String phone = await _splitPhoneNumber(Get.find<ProfileController>().userInfoModel?.userInfo?.phone ?? '');
+    if (AuthHelper.isLoggedIn()) {
+      String phone = await _splitPhoneNumber(
+          Get.find<ProfileController>().userInfoModel?.userInfo?.phone ?? '');
 
-      guestContactPersonNameController.text = '${Get.find<ProfileController>().userInfoModel?.userInfo?.fName ?? ''} ${Get.find<ProfileController>().userInfoModel?.userInfo?.lName ?? ''}';
+      guestContactPersonNameController.text =
+          '${Get.find<ProfileController>().userInfoModel?.userInfo?.fName ?? ''} ${Get.find<ProfileController>().userInfoModel?.userInfo?.lName ?? ''}';
       guestContactPersonNumberController.text = phone;
-      guestEmailController.text = Get.find<ProfileController>().userInfoModel?.userInfo?.email ?? '';
+      guestEmailController.text =
+          Get.find<ProfileController>().userInfoModel?.userInfo?.email ?? '';
     }
-
-
   }
 
   Future<void> _selectDineIn() async {
-
     Future.delayed(Duration(milliseconds: 800), () {
       Get.find<CheckoutController>().setOrderType('dine_in', notify: true);
       Future.delayed(Duration(milliseconds: 500), () {
-        if(Get.find<CheckoutController>().restaurant != null && Get.find<CheckoutController>().distance != null) {
+        if (Get.find<CheckoutController>().restaurant != null &&
+            Get.find<CheckoutController>().distance != null) {
           Get.find<CheckoutController>().setOrderType('dine_in', notify: true);
           _animateDeliverySection();
         } else {
           Future.delayed(Duration(seconds: 3), () {
-            Get.find<CheckoutController>().setOrderType('dine_in', notify: true);
+            Get.find<CheckoutController>()
+                .setOrderType('dine_in', notify: true);
             _animateDeliverySection();
           });
         }
       });
     });
-
   }
 
   _animateDeliverySection() {
-    if(deliveryOptionScrollController.hasClients) {
+    if (deliveryOptionScrollController.hasClients) {
       deliveryOptionScrollController.animateTo(
-        deliveryOptionScrollController.position.maxScrollExtent, // Scroll to the end
-        duration: Duration(milliseconds: 500), // Set the duration of the animation
+        deliveryOptionScrollController
+            .position.maxScrollExtent, // Scroll to the end
+        duration:
+            Duration(milliseconds: 500), // Set the duration of the animation
         curve: Curves.easeOut, // Set the curve for the animation
       );
     }
@@ -206,18 +239,28 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<String> _splitPhoneNumber(String number) async {
     PhoneValid phoneNumber = await CustomValidator.isPhoneValid(number);
-    Get.find<CheckoutController>().countryDialCode = '+${phoneNumber.countryCode}';
+    Get.find<CheckoutController>().countryDialCode =
+        '+${phoneNumber.countryCode}';
     return phoneNumber.phone.replaceFirst('+${phoneNumber.countryCode}', '');
   }
 
   void setSinglePaymentActive() {
-    if(!_isCashOnDeliveryActive! && _isDigitalPaymentActive! && Get.find<SplashController>().configModel!.activePaymentMethodList!.length == 1 && !_isWalletActive) {
+    if (!_isCashOnDeliveryActive! &&
+        _isDigitalPaymentActive! &&
+        Get.find<SplashController>()
+                .configModel!
+                .activePaymentMethodList!
+                .length ==
+            1 &&
+        !_isWalletActive) {
       Get.find<CheckoutController>().setPaymentMethod(2, willUpdate: false);
-      Get.find<CheckoutController>().changeDigitalPaymentName(Get.find<SplashController>().configModel!.activePaymentMethodList![0].getWay!);
+      Get.find<CheckoutController>().changeDigitalPaymentName(
+          Get.find<SplashController>()
+              .configModel!
+              .activePaymentMethodList![0]
+              .getWay!);
     }
-
   }
-
 
   @override
   void dispose() {
@@ -229,301 +272,647 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-    bool guestCheckoutPermission = AuthHelper.isGuestLoggedIn() && Get.find<SplashController>().configModel!.guestCheckoutStatus!;
+    bool guestCheckoutPermission = AuthHelper.isGuestLoggedIn() &&
+        Get.find<SplashController>().configModel!.guestCheckoutStatus!;
     bool isLoggedIn = AuthHelper.isLoggedIn();
 
     return Scaffold(
       appBar: CustomAppBarWidget(title: 'checkout'.tr),
-      endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
-      body: guestCheckoutPermission || AuthHelper.isLoggedIn() ? GetBuilder<LocationController>(builder: (locationController) {
-        return GetBuilder<CheckoutController>(
-          builder: (checkoutController) {
+      endDrawer: const MenuDrawerWidget(),
+      endDrawerEnableOpenDragGesture: false,
+      body: guestCheckoutPermission || AuthHelper.isLoggedIn()
+          ? GetBuilder<LocationController>(builder: (locationController) {
+              return GetBuilder<CheckoutController>(
+                  builder: (checkoutController) {
+                bool todayClosed = false;
+                bool tomorrowClosed = false;
 
-            bool todayClosed = false;
-            bool tomorrowClosed = false;
-
-            if(checkoutController.restaurant != null) {
-              todayClosed = checkoutController.isRestaurantClosed(DateTime.now(), checkoutController.restaurant!.active!, checkoutController.restaurant!.schedules);
-              tomorrowClosed = checkoutController.isRestaurantClosed(DateTime.now().add(const Duration(days: 1)), checkoutController.restaurant!.active!, checkoutController.restaurant!.schedules);
-              taxPercent = checkoutController.restaurant!.tax;
-            }
-            return GetBuilder<CouponController>(builder: (couponController) {
-              bool showTips = checkoutController.orderType != 'take_away' && Get.find<SplashController>().configModel!.dmTipsStatus == 1 && !checkoutController.subscriptionOrder;
-              double deliveryCharge = -1;
-              double charge = -1;
-              double? maxCodOrderAmount;
-              if(checkoutController.restaurant != null && checkoutController.distance != null && checkoutController.distance != -1 ) {
-
-                deliveryCharge = _getDeliveryCharge(restaurant: checkoutController.restaurant, checkoutController: checkoutController, returnDeliveryCharge: true)!;
-                charge = _getDeliveryCharge(restaurant: checkoutController.restaurant, checkoutController: checkoutController, returnDeliveryCharge: false)!;
-                maxCodOrderAmount = _getDeliveryCharge(restaurant: checkoutController.restaurant, checkoutController: checkoutController, returnMaxCodOrderAmount: true);
-
-                if(checkoutController.orderType != 'take_away' && checkoutController.orderType != 'dine_in') {
-                  _deliveryChargeForView = (checkoutController.orderType == 'delivery' ? checkoutController.restaurant!.freeDelivery! : true) ? 'free'.tr
-                      : deliveryCharge != -1 ? PriceConverter.convertPrice(deliveryCharge) : 'calculating'.tr;
+                if (checkoutController.restaurant != null) {
+                  todayClosed = checkoutController.isRestaurantClosed(
+                      DateTime.now(),
+                      checkoutController.restaurant!.active!,
+                      checkoutController.restaurant!.schedules);
+                  tomorrowClosed = checkoutController.isRestaurantClosed(
+                      DateTime.now().add(const Duration(days: 1)),
+                      checkoutController.restaurant!.active!,
+                      checkoutController.restaurant!.schedules);
+                  taxPercent = checkoutController.restaurant!.tax;
                 }
+                return GetBuilder<CouponController>(
+                    builder: (couponController) {
+                  bool showTips = checkoutController.orderType != 'take_away' &&
+                      Get.find<SplashController>().configModel!.dmTipsStatus ==
+                          1 &&
+                      !checkoutController.subscriptionOrder;
+                  double deliveryCharge = -1;
+                  double charge = -1;
+                  double? maxCodOrderAmount;
+                  if (checkoutController.restaurant != null &&
+                      checkoutController.distance != null &&
+                      checkoutController.distance != -1) {
+                    deliveryCharge = _getDeliveryCharge(
+                        restaurant: checkoutController.restaurant,
+                        checkoutController: checkoutController,
+                        returnDeliveryCharge: true)!;
+                    charge = _getDeliveryCharge(
+                        restaurant: checkoutController.restaurant,
+                        checkoutController: checkoutController,
+                        returnDeliveryCharge: false)!;
+                    maxCodOrderAmount = _getDeliveryCharge(
+                        restaurant: checkoutController.restaurant,
+                        checkoutController: checkoutController,
+                        returnMaxCodOrderAmount: true);
 
-              }
+                    if (checkoutController.orderType != 'take_away' &&
+                        checkoutController.orderType != 'dine_in') {
+                      _deliveryChargeForView =
+                          (checkoutController.orderType == 'delivery'
+                                  ? checkoutController.restaurant!.freeDelivery!
+                                  : true)
+                              ? 'free'.tr
+                              : deliveryCharge != -1
+                                  ? PriceConverter.convertPrice(deliveryCharge)
+                                  : 'calculating'.tr;
+                    }
+                  }
 
-              double price = _cartList != null ? _calculatePrice(_cartList) : 0;
-              log('price: $price', name: 'CheckoutScreen');
-              double packagePrice = _cartList != null ? _calculatePackagePrice(_cartList) : 0;
-              double addOnsPrice = _cartList != null ? _calculateAddonsPrice(_cartList) : 0;
-              double? discount = _calculateDiscountPrice(_cartList, checkoutController.restaurant, price, addOnsPrice);
-              double? couponDiscount = PriceConverter.toFixed(couponController.discount!);
+                  double price =
+                      _cartList != null ? _calculatePrice(_cartList) : 0;
+                  log('price: $price', name: 'CheckoutScreen');
+                  double packagePrice =
+                      _cartList != null ? _calculatePackagePrice(_cartList) : 0;
+                  double addOnsPrice =
+                      _cartList != null ? _calculateAddonsPrice(_cartList) : 0;
+                  double? discount = _calculateDiscountPrice(_cartList,
+                      checkoutController.restaurant, price, addOnsPrice);
+                  double? couponDiscount =
+                      PriceConverter.toFixed(couponController.discount!);
 
-              double subTotal = _calculateSubTotal(price, addOnsPrice);
+                  double subTotal = _calculateSubTotal(price, addOnsPrice);
 
-              double referralDiscount = _calculateReferralDiscount(subTotal, discount, couponDiscount, checkoutController.subscriptionOrder);
+                  double referralDiscount = _calculateReferralDiscount(
+                      subTotal,
+                      discount,
+                      couponDiscount,
+                      checkoutController.subscriptionOrder);
 
-              double orderAmount = _calculateOrderAmount(price, addOnsPrice, discount, couponDiscount, referralDiscount);
-              log('orderAmount: $orderAmount', name: 'CheckoutScreen');
+                  double orderAmount = _calculateOrderAmount(price, addOnsPrice,
+                      discount, couponDiscount, referralDiscount);
+                  log('orderAmount: $orderAmount', name: 'CheckoutScreen');
 
-              bool taxIncluded = Get.find<SplashController>().configModel!.taxIncluded == 1;
-              double tax = _calculateTax(taxIncluded, orderAmount, taxPercent);
-              bool restaurantSubscriptionActive = false;
-              int subscriptionQty = checkoutController.subscriptionOrder ? 0 : 1;
-              double additionalCharge =  Get.find<SplashController>().configModel!.additionalChargeStatus! ? Get.find<SplashController>().configModel!.additionCharge! : 0;
+                  bool taxIncluded =
+                      Get.find<SplashController>().configModel!.taxIncluded ==
+                          1;
+                  double tax =
+                      _calculateTax(taxIncluded, orderAmount, taxPercent);
+                  bool restaurantSubscriptionActive = false;
+                  int subscriptionQty =
+                      checkoutController.subscriptionOrder ? 0 : 1;
+                  double additionalCharge = Get.find<SplashController>()
+                          .configModel!
+                          .additionalChargeStatus!
+                      ? Get.find<SplashController>()
+                          .configModel!
+                          .additionCharge!
+                      : 0;
 
-              if(checkoutController.restaurant != null) {
+                  if (checkoutController.restaurant != null) {
+                    restaurantSubscriptionActive = checkoutController
+                            .restaurant!.orderSubscriptionActive! &&
+                        widget.fromCart;
 
-                restaurantSubscriptionActive =  checkoutController.restaurant!.orderSubscriptionActive! && widget.fromCart;
+                    subscriptionQty = _getSubscriptionQty(
+                        checkoutController: checkoutController,
+                        restaurantSubscriptionActive:
+                            restaurantSubscriptionActive);
 
-                subscriptionQty = _getSubscriptionQty(checkoutController: checkoutController, restaurantSubscriptionActive: restaurantSubscriptionActive);
+                    if (checkoutController.orderType == 'take_away' ||
+                        checkoutController.orderType == 'dine_in' ||
+                        checkoutController.restaurant!.freeDelivery! ||
+                        (Get.find<SplashController>()
+                                    .configModel!
+                                    .freeDeliveryOver !=
+                                null &&
+                            orderAmount >=
+                                Get.find<SplashController>()
+                                    .configModel!
+                                    .freeDeliveryOver!) ||
+                        couponController.freeDelivery) {
+                      deliveryCharge = 0;
+                    }
+                  }
 
-                if (checkoutController.orderType == 'take_away' || checkoutController.orderType == 'dine_in' || checkoutController.restaurant!.freeDelivery!
-                    || (Get.find<SplashController>().configModel!.freeDeliveryOver != null && orderAmount
-                        >= Get.find<SplashController>().configModel!.freeDeliveryOver!) || couponController.freeDelivery) {
-                  deliveryCharge = 0;
-                }
-              }
+                  deliveryCharge = PriceConverter.toFixed(deliveryCharge);
 
-              deliveryCharge = PriceConverter.toFixed(deliveryCharge);
+                  double extraPackagingCharge =
+                      _calculateExtraPackagingCharge(checkoutController);
 
-              double extraPackagingCharge = _calculateExtraPackagingCharge(checkoutController);
+                  double total = _calculateTotal(
+                      subTotal,
+                      deliveryCharge,
+                      discount,
+                      couponDiscount,
+                      taxIncluded,
+                      tax,
+                      showTips,
+                      checkoutController.tips,
+                      additionalCharge,
+                      extraPackagingCharge,
+                      packagePrice);
 
-              double total = _calculateTotal(subTotal, deliveryCharge, discount, couponDiscount, taxIncluded, tax, showTips, checkoutController.tips, additionalCharge, extraPackagingCharge, packagePrice);
+                  total = total - referralDiscount;
 
-              total = total - referralDiscount;
+                  checkoutController.setTotalAmount(total -
+                      (checkoutController.isPartialPay
+                          ? Get.find<ProfileController>()
+                                  .userInfoModel
+                                  ?.walletBalance ??
+                              0
+                          : 0));
 
-              checkoutController.setTotalAmount(total - (checkoutController.isPartialPay ? Get.find<ProfileController>().userInfoModel?.walletBalance ?? 0 : 0));
+                  if (_payableAmount != checkoutController.viewTotalPrice &&
+                      checkoutController.distance != null &&
+                      isLoggedIn &&
+                      Get.find<HomeController>().cashBackOfferList != null &&
+                      Get.find<HomeController>()
+                          .cashBackOfferList!
+                          .isNotEmpty) {
+                    _payableAmount = checkoutController.viewTotalPrice;
+                    showCashBackSnackBar();
+                  }
 
-              if(_payableAmount != checkoutController.viewTotalPrice && checkoutController.distance != null && isLoggedIn && Get.find<HomeController>().cashBackOfferList != null && Get.find<HomeController>().cashBackOfferList!.isNotEmpty) {
-                _payableAmount = checkoutController.viewTotalPrice;
-                showCashBackSnackBar();
-              }
-
-              return (checkoutController.distance != null && checkoutController.restaurant != null) ? Column(
-                children: [
-                  WebScreenTitleWidget(title: 'checkout'.tr),
-
-                  Expanded(child: SingleChildScrollView(
-                    controller: scrollController,
-                    physics: const BouncingScrollPhysics(),
-                    child: FooterViewWidget(
-                      child: Center(
-                        child: SizedBox(
-                          width: Dimensions.webMaxWidth,
-                          child: ResponsiveHelper.isDesktop(context) ? Padding(
-                            padding: const EdgeInsets.only(top: Dimensions.paddingSizeLarge),
-                            child: Row(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-
-                              Expanded(flex: 6, child: TopSectionWidget(
-                                charge: charge, deliveryCharge: deliveryCharge,
-                                locationController: locationController, tomorrowClosed: tomorrowClosed, todayClosed: todayClosed,
-                                price: price, discount: discount, addOns: addOnsPrice, restaurantSubscriptionActive: restaurantSubscriptionActive,
-                                showTips: showTips, isCashOnDeliveryActive: _isCashOnDeliveryActive!, isDigitalPaymentActive: _isDigitalPaymentActive!,
-                                isWalletActive: _isWalletActive, fromCart: widget.fromCart, total: total, tooltipController3: tooltipController3, tooltipController2: tooltipController2,
-                                guestNameTextEditingController: guestContactPersonNameController, guestNumberTextEditingController: guestContactPersonNumberController,
-                                guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
-                                guestNumberNode: guestNumberNode, isOfflinePaymentActive: _isOfflinePaymentActive, loginTooltipController: loginTooltipController,
-                                callBack: () => initCall(), deliveryChargeForView: _deliveryChargeForView, deliveryFeeTooltipController: deliveryFeeTooltipController,
-                                badWeatherCharge: badWeatherChargeForToolTip, extraChargeForToolTip: extraChargeForToolTip,
-                                deliveryOptionScrollController: deliveryOptionScrollController,
-                              )),
-                              const SizedBox(width: Dimensions.paddingSizeLarge),
-
-                              Expanded(
-                                flex: 4,
-                                child: BottomSectionWidget(
-                                  packagingPrice: packagePrice,
-                                  isCashOnDeliveryActive: _isCashOnDeliveryActive!, isDigitalPaymentActive: _isDigitalPaymentActive!, isWalletActive: _isWalletActive,
-                                  total: total, subTotal: subTotal, discount: discount, couponController: couponController,
-                                  taxIncluded: taxIncluded, tax: tax, deliveryCharge: deliveryCharge, checkoutController: checkoutController, locationController: locationController,
-                                  todayClosed: todayClosed, tomorrowClosed: tomorrowClosed, orderAmount: orderAmount, maxCodOrderAmount: maxCodOrderAmount,
-                                  subscriptionQty: subscriptionQty, taxPercent: taxPercent!, fromCart: widget.fromCart, cartList: _cartList,
-                                  price: price, addOns: addOnsPrice, charge: charge,
-                                  guestNumberTextEditingController: guestContactPersonNumberController, guestNumberNode: guestNumberNode,
-                                  guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
-                                  guestNameTextEditingController: guestContactPersonNameController, isOfflinePaymentActive: _isOfflinePaymentActive,
-                                  expansionTileController: expansionTileController, serviceFeeTooltipController: serviceFeeTooltipController, referralDiscount: referralDiscount,
-                                  extraPackagingAmount: extraPackagingCharge,
+                  return (checkoutController.distance != null &&
+                          checkoutController.restaurant != null)
+                      ? Column(
+                          children: [
+                            WebScreenTitleWidget(title: 'checkout'.tr),
+                            Expanded(
+                                child: SingleChildScrollView(
+                              controller: scrollController,
+                              physics: const BouncingScrollPhysics(),
+                              child: FooterViewWidget(
+                                child: Center(
+                                  child: SizedBox(
+                                    width: Dimensions.webMaxWidth,
+                                    child: ResponsiveHelper.isDesktop(context)
+                                        ? Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: Dimensions
+                                                    .paddingSizeLarge),
+                                            child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Expanded(
+                                                      flex: 6,
+                                                      child: TopSectionWidget(
+                                                        charge: charge,
+                                                        deliveryCharge:
+                                                            deliveryCharge,
+                                                        locationController:
+                                                            locationController,
+                                                        tomorrowClosed:
+                                                            tomorrowClosed,
+                                                        todayClosed:
+                                                            todayClosed,
+                                                        price: price,
+                                                        discount: discount,
+                                                        addOns: addOnsPrice,
+                                                        restaurantSubscriptionActive:
+                                                            restaurantSubscriptionActive,
+                                                        showTips: showTips,
+                                                        isCashOnDeliveryActive:
+                                                            _isCashOnDeliveryActive!,
+                                                        isDigitalPaymentActive:
+                                                            _isDigitalPaymentActive!,
+                                                        isWalletActive:
+                                                            _isWalletActive,
+                                                        fromCart:
+                                                            widget.fromCart,
+                                                        total: total,
+                                                        tooltipController3:
+                                                            tooltipController3,
+                                                        tooltipController2:
+                                                            tooltipController2,
+                                                        guestNameTextEditingController:
+                                                            guestContactPersonNameController,
+                                                        guestNumberTextEditingController:
+                                                            guestContactPersonNumberController,
+                                                        guestEmailController:
+                                                            guestEmailController,
+                                                        guestEmailNode:
+                                                            guestEmailNode,
+                                                        guestNumberNode:
+                                                            guestNumberNode,
+                                                        isOfflinePaymentActive:
+                                                            _isOfflinePaymentActive,
+                                                        loginTooltipController:
+                                                            loginTooltipController,
+                                                        callBack: () =>
+                                                            initCall(),
+                                                        deliveryChargeForView:
+                                                            _deliveryChargeForView,
+                                                        deliveryFeeTooltipController:
+                                                            deliveryFeeTooltipController,
+                                                        badWeatherCharge:
+                                                            badWeatherChargeForToolTip,
+                                                        extraChargeForToolTip:
+                                                            extraChargeForToolTip,
+                                                        deliveryOptionScrollController:
+                                                            deliveryOptionScrollController,
+                                                      )),
+                                                  const SizedBox(
+                                                      width: Dimensions
+                                                          .paddingSizeLarge),
+                                                  Expanded(
+                                                    flex: 4,
+                                                    child: BottomSectionWidget(
+                                                      packagingPrice:
+                                                          packagePrice,
+                                                      isCashOnDeliveryActive:
+                                                          _isCashOnDeliveryActive!,
+                                                      isDigitalPaymentActive:
+                                                          _isDigitalPaymentActive!,
+                                                      isWalletActive:
+                                                          _isWalletActive,
+                                                      total: total,
+                                                      subTotal: subTotal,
+                                                      discount: discount,
+                                                      couponController:
+                                                          couponController,
+                                                      taxIncluded: taxIncluded,
+                                                      tax: tax,
+                                                      deliveryCharge:
+                                                          deliveryCharge,
+                                                      checkoutController:
+                                                          checkoutController,
+                                                      locationController:
+                                                          locationController,
+                                                      todayClosed: todayClosed,
+                                                      tomorrowClosed:
+                                                          tomorrowClosed,
+                                                      orderAmount: orderAmount,
+                                                      maxCodOrderAmount:
+                                                          maxCodOrderAmount,
+                                                      subscriptionQty:
+                                                          subscriptionQty,
+                                                      taxPercent: taxPercent!,
+                                                      fromCart: widget.fromCart,
+                                                      cartList: _cartList,
+                                                      price: price,
+                                                      addOns: addOnsPrice,
+                                                      charge: charge,
+                                                      guestNumberTextEditingController:
+                                                          guestContactPersonNumberController,
+                                                      guestNumberNode:
+                                                          guestNumberNode,
+                                                      guestEmailController:
+                                                          guestEmailController,
+                                                      guestEmailNode:
+                                                          guestEmailNode,
+                                                      guestNameTextEditingController:
+                                                          guestContactPersonNameController,
+                                                      isOfflinePaymentActive:
+                                                          _isOfflinePaymentActive,
+                                                      expansionTileController:
+                                                          expansionTileController,
+                                                      serviceFeeTooltipController:
+                                                          serviceFeeTooltipController,
+                                                      referralDiscount:
+                                                          referralDiscount,
+                                                      extraPackagingAmount:
+                                                          extraPackagingCharge,
+                                                    ),
+                                                  )
+                                                ]),
+                                          )
+                                        : Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                                TopSectionWidget(
+                                                  charge: charge,
+                                                  deliveryCharge:
+                                                      deliveryCharge,
+                                                  locationController:
+                                                      locationController,
+                                                  tomorrowClosed:
+                                                      tomorrowClosed,
+                                                  todayClosed: todayClosed,
+                                                  price: price,
+                                                  discount: discount,
+                                                  addOns: addOnsPrice,
+                                                  restaurantSubscriptionActive:
+                                                      restaurantSubscriptionActive,
+                                                  showTips: showTips,
+                                                  isCashOnDeliveryActive:
+                                                      _isCashOnDeliveryActive!,
+                                                  isDigitalPaymentActive:
+                                                      _isDigitalPaymentActive!,
+                                                  isWalletActive:
+                                                      _isWalletActive,
+                                                  fromCart: widget.fromCart,
+                                                  total: total,
+                                                  tooltipController3:
+                                                      tooltipController3,
+                                                  tooltipController2:
+                                                      tooltipController2,
+                                                  guestNameTextEditingController:
+                                                      guestContactPersonNameController,
+                                                  guestNumberTextEditingController:
+                                                      guestContactPersonNumberController,
+                                                  guestEmailController:
+                                                      guestEmailController,
+                                                  guestEmailNode:
+                                                      guestEmailNode,
+                                                  guestNumberNode:
+                                                      guestNumberNode,
+                                                  isOfflinePaymentActive:
+                                                      _isOfflinePaymentActive,
+                                                  loginTooltipController:
+                                                      loginTooltipController,
+                                                  callBack: () => initCall(),
+                                                  deliveryChargeForView:
+                                                      _deliveryChargeForView,
+                                                  deliveryFeeTooltipController:
+                                                      deliveryFeeTooltipController,
+                                                  badWeatherCharge:
+                                                      badWeatherChargeForToolTip,
+                                                  extraChargeForToolTip:
+                                                      extraChargeForToolTip,
+                                                  deliveryOptionScrollController:
+                                                      deliveryOptionScrollController,
+                                                ),
+                                                BottomSectionWidget(
+                                                  packagingPrice: packagePrice,
+                                                  isCashOnDeliveryActive:
+                                                      _isCashOnDeliveryActive!,
+                                                  isDigitalPaymentActive:
+                                                      _isDigitalPaymentActive!,
+                                                  isWalletActive:
+                                                      _isWalletActive,
+                                                  total: total,
+                                                  subTotal: subTotal,
+                                                  discount: discount,
+                                                  couponController:
+                                                      couponController,
+                                                  taxIncluded: taxIncluded,
+                                                  tax: tax,
+                                                  deliveryCharge:
+                                                      deliveryCharge,
+                                                  checkoutController:
+                                                      checkoutController,
+                                                  locationController:
+                                                      locationController,
+                                                  todayClosed: todayClosed,
+                                                  tomorrowClosed:
+                                                      tomorrowClosed,
+                                                  orderAmount: orderAmount,
+                                                  maxCodOrderAmount:
+                                                      maxCodOrderAmount,
+                                                  subscriptionQty:
+                                                      subscriptionQty,
+                                                  taxPercent: taxPercent!,
+                                                  fromCart: widget.fromCart,
+                                                  cartList: _cartList!,
+                                                  price: price,
+                                                  addOns: addOnsPrice,
+                                                  charge: charge,
+                                                  guestNumberTextEditingController:
+                                                      guestContactPersonNumberController,
+                                                  guestNumberNode:
+                                                      guestNumberNode,
+                                                  guestEmailController:
+                                                      guestEmailController,
+                                                  guestEmailNode:
+                                                      guestEmailNode,
+                                                  guestNameTextEditingController:
+                                                      guestContactPersonNameController,
+                                                  isOfflinePaymentActive:
+                                                      _isOfflinePaymentActive,
+                                                  expansionTileController:
+                                                      expansionTileController,
+                                                  serviceFeeTooltipController:
+                                                      serviceFeeTooltipController,
+                                                  referralDiscount:
+                                                      referralDiscount,
+                                                  extraPackagingAmount:
+                                                      extraPackagingCharge,
+                                                ),
+                                              ]),
+                                  ),
                                 ),
-                              )
-                            ]),
-                          ) : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-                            TopSectionWidget(
-                              charge: charge, deliveryCharge: deliveryCharge,
-                              locationController: locationController, tomorrowClosed: tomorrowClosed, todayClosed: todayClosed,
-                              price: price, discount: discount, addOns: addOnsPrice, restaurantSubscriptionActive: restaurantSubscriptionActive,
-                              showTips: showTips, isCashOnDeliveryActive: _isCashOnDeliveryActive!, isDigitalPaymentActive: _isDigitalPaymentActive!,
-                              isWalletActive: _isWalletActive, fromCart: widget.fromCart, total: total, tooltipController3: tooltipController3, tooltipController2: tooltipController2,
-                              guestNameTextEditingController: guestContactPersonNameController, guestNumberTextEditingController: guestContactPersonNumberController,
-                              guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
-                              guestNumberNode: guestNumberNode, isOfflinePaymentActive: _isOfflinePaymentActive, loginTooltipController: loginTooltipController,
-                              callBack: () => initCall(), deliveryChargeForView: _deliveryChargeForView, deliveryFeeTooltipController: deliveryFeeTooltipController,
-                              badWeatherCharge: badWeatherChargeForToolTip, extraChargeForToolTip: extraChargeForToolTip,
-                              deliveryOptionScrollController: deliveryOptionScrollController,
-                            ),
-
-                            BottomSectionWidget(
-                              packagingPrice: packagePrice,
-                              isCashOnDeliveryActive: _isCashOnDeliveryActive!, isDigitalPaymentActive: _isDigitalPaymentActive!, isWalletActive: _isWalletActive,
-                              total: total, subTotal: subTotal, discount: discount, couponController: couponController,
-                              taxIncluded: taxIncluded, tax: tax, deliveryCharge: deliveryCharge, checkoutController: checkoutController, locationController: locationController,
-                              todayClosed: todayClosed, tomorrowClosed: tomorrowClosed, orderAmount: orderAmount, maxCodOrderAmount: maxCodOrderAmount,
-                              subscriptionQty: subscriptionQty, taxPercent: taxPercent!, fromCart: widget.fromCart, cartList: _cartList!,
-                              price: price, addOns: addOnsPrice, charge: charge,
-                              guestNumberTextEditingController: guestContactPersonNumberController, guestNumberNode: guestNumberNode,
-                              guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
-                              guestNameTextEditingController: guestContactPersonNameController, isOfflinePaymentActive: _isOfflinePaymentActive,
-                              expansionTileController: expansionTileController, serviceFeeTooltipController: serviceFeeTooltipController, referralDiscount: referralDiscount,
-                              extraPackagingAmount: extraPackagingCharge,
-                            ),
-                          ]),
-                        ),
-                      ),
-                    ),
-                  )),
-
-                  ResponsiveHelper.isDesktop(context) ? const SizedBox() : Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      boxShadow: [BoxShadow(color: Theme.of(context).primaryColor.withValues(alpha: 0.1), blurRadius: 10)],
-                    ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeExtraSmall),
-                          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                            Text(
-                              'total_amount'.tr,
-                              style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor),
-                            ),
-                            PriceConverter.convertAnimationPrice(
-                              total * (checkoutController.subscriptionOrder ? (subscriptionQty == 0 ? 1 : subscriptionQty) : 1),
-                              textStyle: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor),
-                            ),
-                          ]),
-                        ),
-
-                        OrderPlaceButton(
-                          packagingPrice: packagePrice,
-                          checkoutController: checkoutController, locationController: locationController,
-                          todayClosed: todayClosed, tomorrowClosed: tomorrowClosed, orderAmount: orderAmount, deliveryCharge: deliveryCharge,
-                          tax: tax, discount: discount, total: total, maxCodOrderAmount: maxCodOrderAmount, subscriptionQty: subscriptionQty,
-                          cartList: _cartList!, isCashOnDeliveryActive: _isCashOnDeliveryActive!, isDigitalPaymentActive: _isDigitalPaymentActive!,
-                          isWalletActive: _isWalletActive, fromCart: widget.fromCart, guestNumberTextEditingController: guestContactPersonNumberController,
-                          guestNumberNode: guestNumberNode, guestNameTextEditingController: guestContactPersonNameController,
-                          guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
-                          isOfflinePaymentActive: _isOfflinePaymentActive, subTotal: subTotal, couponController: couponController,
-                          taxIncluded: taxIncluded, taxPercent: taxPercent!, extraPackagingAmount: extraPackagingCharge,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                ],
-              ) : const CheckoutScreenShimmerView();
-            });
-          }
-        );
-      }) : NotLoggedInScreen(callBack: (value) {
-        initCall();
-        setState(() {});
-      }),
+                              ),
+                            )),
+                            ResponsiveHelper.isDesktop(context)
+                                ? const SizedBox()
+                                : Container(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).cardColor,
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: Theme.of(context)
+                                                .primaryColor
+                                                .withValues(alpha: 0.1),
+                                            blurRadius: 10)
+                                      ],
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal:
+                                                  Dimensions.paddingSizeLarge,
+                                              vertical: Dimensions
+                                                  .paddingSizeExtraSmall),
+                                          child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  'total_amount'.tr,
+                                                  style: robotoMedium.copyWith(
+                                                      fontSize: Dimensions
+                                                          .fontSizeLarge,
+                                                      color: Theme.of(context)
+                                                          .primaryColor),
+                                                ),
+                                                PriceConverter
+                                                    .convertAnimationPrice(
+                                                  total *
+                                                      (checkoutController
+                                                              .subscriptionOrder
+                                                          ? (subscriptionQty ==
+                                                                  0
+                                                              ? 1
+                                                              : subscriptionQty)
+                                                          : 1),
+                                                  textStyle:
+                                                      robotoMedium.copyWith(
+                                                          fontSize: Dimensions
+                                                              .fontSizeLarge,
+                                                          color: Theme.of(
+                                                                  context)
+                                                              .primaryColor),
+                                                ),
+                                              ]),
+                                        ),
+                                        OrderPlaceButton(
+                                          packagingPrice: packagePrice,
+                                          checkoutController:
+                                              checkoutController,
+                                          locationController:
+                                              locationController,
+                                          todayClosed: todayClosed,
+                                          tomorrowClosed: tomorrowClosed,
+                                          orderAmount: orderAmount,
+                                          deliveryCharge: deliveryCharge,
+                                          tax: tax,
+                                          discount: discount,
+                                          total: total,
+                                          maxCodOrderAmount: maxCodOrderAmount,
+                                          subscriptionQty: subscriptionQty,
+                                          cartList: _cartList!,
+                                          isCashOnDeliveryActive:
+                                              _isCashOnDeliveryActive!,
+                                          isDigitalPaymentActive:
+                                              _isDigitalPaymentActive!,
+                                          isWalletActive: _isWalletActive,
+                                          fromCart: widget.fromCart,
+                                          guestNumberTextEditingController:
+                                              guestContactPersonNumberController,
+                                          guestNumberNode: guestNumberNode,
+                                          guestNameTextEditingController:
+                                              guestContactPersonNameController,
+                                          guestEmailController:
+                                              guestEmailController,
+                                          guestEmailNode: guestEmailNode,
+                                          isOfflinePaymentActive:
+                                              _isOfflinePaymentActive,
+                                          subTotal: subTotal,
+                                          couponController: couponController,
+                                          taxIncluded: taxIncluded,
+                                          taxPercent: taxPercent!,
+                                          extraPackagingAmount:
+                                              extraPackagingCharge,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                          ],
+                        )
+                      : const CheckoutScreenShimmerView();
+                });
+              });
+            })
+          : NotLoggedInScreen(callBack: (value) {
+              initCall();
+              setState(() {});
+            }),
     );
   }
 
-  double? _getDeliveryCharge({required Restaurant? restaurant, required CheckoutController checkoutController, bool returnDeliveryCharge = true, bool returnMaxCodOrderAmount = false}) {
-
-    ZoneData zoneData = AddressHelper.getAddressFromSharedPref()!.zoneData!.firstWhere((data) => data.id == restaurant!.zoneId);
-    double perKmCharge = restaurant!.selfDeliverySystem == 1 ? restaurant.perKmShippingCharge!
+  double? _getDeliveryCharge(
+      {required Restaurant? restaurant,
+      required CheckoutController checkoutController,
+      bool returnDeliveryCharge = true,
+      bool returnMaxCodOrderAmount = false}) {
+    ZoneData zoneData = AddressHelper.getAddressFromSharedPref()!
+        .zoneData!
+        .firstWhere((data) => data.id == restaurant!.zoneId);
+    double perKmCharge = restaurant!.selfDeliverySystem == 1
+        ? restaurant.perKmShippingCharge!
         : zoneData.perKmShippingCharge ?? 0;
 
-    double minimumCharge = restaurant.selfDeliverySystem == 1 ? restaurant.minimumShippingCharge!
-        :  zoneData.minimumShippingCharge ?? 0;
+    double minimumCharge = restaurant.selfDeliverySystem == 1
+        ? restaurant.minimumShippingCharge!
+        : zoneData.minimumShippingCharge ?? 0;
 
-    double? maximumCharge = restaurant.selfDeliverySystem == 1 ? restaurant.maximumShippingCharge
+    double? maximumCharge = restaurant.selfDeliverySystem == 1
+        ? restaurant.maximumShippingCharge
         : zoneData.maximumShippingCharge;
 
     double deliveryCharge = checkoutController.distance! * perKmCharge;
     double charge = checkoutController.distance! * perKmCharge;
 
-    if(deliveryCharge < minimumCharge) {
+    if (deliveryCharge < minimumCharge) {
       deliveryCharge = minimumCharge;
       charge = minimumCharge;
     }
 
-    if(restaurant.selfDeliverySystem == 0 && checkoutController.extraCharge != null){
+    if (restaurant.selfDeliverySystem == 0 &&
+        checkoutController.extraCharge != null) {
       extraChargeForToolTip = checkoutController.extraCharge!;
       deliveryCharge = deliveryCharge + checkoutController.extraCharge!;
       charge = charge + checkoutController.extraCharge!;
     }
 
-    if(maximumCharge != null && deliveryCharge > maximumCharge){
+    if (maximumCharge != null && deliveryCharge > maximumCharge) {
       deliveryCharge = maximumCharge;
       charge = maximumCharge;
     }
 
-    if(restaurant.selfDeliverySystem == 0 && zoneData.increasedDeliveryFeeStatus == 1){
-      badWeatherChargeForToolTip = (deliveryCharge * (zoneData.increasedDeliveryFee!/100));
-      deliveryCharge = deliveryCharge + (deliveryCharge * (zoneData.increasedDeliveryFee!/100));
-      charge = charge + charge * (zoneData.increasedDeliveryFee!/100);
-
+    if (restaurant.selfDeliverySystem == 0 &&
+        zoneData.increasedDeliveryFeeStatus == 1) {
+      badWeatherChargeForToolTip =
+          (deliveryCharge * (zoneData.increasedDeliveryFee! / 100));
+      deliveryCharge = deliveryCharge +
+          (deliveryCharge * (zoneData.increasedDeliveryFee! / 100));
+      charge = charge + charge * (zoneData.increasedDeliveryFee! / 100);
     }
 
-    if(restaurant.selfDeliverySystem == 0 && Get.find<SplashController>().configModel!.freeDeliveryDistance != null && Get.find<SplashController>().configModel!.freeDeliveryDistance! >= checkoutController.distance!){
+    if (restaurant.selfDeliverySystem == 0 &&
+        Get.find<SplashController>().configModel!.freeDeliveryDistance !=
+            null &&
+        Get.find<SplashController>().configModel!.freeDeliveryDistance! >=
+            checkoutController.distance!) {
       deliveryCharge = 0;
       charge = 0;
     }
 
-    if(restaurant.selfDeliverySystem == 1 && restaurant.freeDeliveryDistanceStatus! && restaurant.freeDeliveryDistanceValue! >= checkoutController.distance!){
+    if (restaurant.selfDeliverySystem == 1 &&
+        restaurant.freeDeliveryDistanceStatus! &&
+        restaurant.freeDeliveryDistanceValue! >= checkoutController.distance!) {
       deliveryCharge = 0;
       charge = 0;
     }
 
     double? maxCodOrderAmount;
-    if(zoneData.maxCodOrderAmount != null) {
+    if (zoneData.maxCodOrderAmount != null) {
       maxCodOrderAmount = zoneData.maxCodOrderAmount;
     }
 
-    if(returnMaxCodOrderAmount) {
+    if (returnMaxCodOrderAmount) {
       return maxCodOrderAmount;
     } else {
-      if(returnDeliveryCharge) {
+      if (returnDeliveryCharge) {
         return deliveryCharge;
-      }else {
+      } else {
         return charge;
       }
     }
-
   }
 
   double _calculatePrice(List<CartModel>? cartList) {
     double price = 0;
     double variationPrice = 0;
-    if(cartList != null) {
+    if (cartList != null) {
       for (var cartModel in cartList) {
-
         price = price + (cartModel.product!.price! * cartModel.quantity!);
 
-        for(int index = 0; index< cartModel.product!.variations!.length; index++) {
-          for(int i=0; i<cartModel.product!.variations![index].variationValues!.length; i++) {
-            if(cartModel.variations![index][i]!) {
-              variationPrice += (cartModel.product!.variations![index].variationValues![i].optionPrice! * cartModel.quantity!);
+        for (int index = 0;
+            index < cartModel.product!.variations!.length;
+            index++) {
+          for (int i = 0;
+              i < cartModel.product!.variations![index].variationValues!.length;
+              i++) {
+            if (cartModel.variations![index][i]!) {
+              variationPrice += (cartModel.product!.variations![index]
+                      .variationValues![i].optionPrice! *
+                  cartModel.quantity!);
             }
           }
         }
@@ -534,9 +923,11 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
   double _calculatePackagePrice(List<CartModel>? cartList) {
     double packagePrice = 0;
-    if(cartList != null) {
+    if (cartList != null) {
       for (var cartModel in cartList) {
-        packagePrice += cartModel.product?.category?.packagingPrice != null ? cartModel.product!.category!.packagingPrice! * cartModel.quantity! : 0;
+        packagePrice += cartModel.product?.category?.packagingPrice != null
+            ? cartModel.product!.category!.packagingPrice! * cartModel.quantity!
+            : 0;
       }
     }
     return PriceConverter.toFixed(packagePrice);
@@ -544,8 +935,8 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
   double _calculateAddonsPrice(List<CartModel>? cartList) {
     double addonPrice = 0;
-    if(cartList != null) {
-      for (var cartModel in cartList!) {
+    if (cartList != null) {
+      for (var cartModel in cartList) {
         List<AddOns> addOnList = [];
         for (var addOnId in cartModel.addOnIds!) {
           for (AddOns addOns in cartModel.product!.addOns!) {
@@ -556,61 +947,87 @@ class CheckoutScreenState extends State<CheckoutScreen> {
           }
         }
         for (int index = 0; index < addOnList.length; index++) {
-          addonPrice = addonPrice + (addOnList[index].price! * cartModel.addOnIds![index].quantity!);
+          addonPrice = addonPrice +
+              (addOnList[index].price! * cartModel.addOnIds![index].quantity!);
         }
       }
     }
     return PriceConverter.toFixed(addonPrice);
   }
 
-  double _calculateDiscountPrice(List<CartModel>? cartList, Restaurant? restaurant, double price, double addOns) {
+  double _calculateDiscountPrice(List<CartModel>? cartList,
+      Restaurant? restaurant, double price, double addOns) {
     double? discount = 0;
-    if(restaurant != null && cartList != null) {
+    if (restaurant != null && cartList != null) {
       for (var cartModel in cartList) {
-        double? dis = (restaurant.discount != null
-            && DateConverter.isAvailable(restaurant.discount!.startTime, restaurant.discount!.endTime))
-            ? restaurant.discount!.discount : cartModel.product!.discount;
-        String? disType = (restaurant.discount != null
-            && DateConverter.isAvailable(restaurant.discount!.startTime, restaurant.discount!.endTime))
-            ? 'percent' : cartModel.product!.discountType;
+        double? dis = (restaurant.discount != null &&
+                DateConverter.isAvailable(restaurant.discount!.startTime,
+                    restaurant.discount!.endTime))
+            ? restaurant.discount!.discount
+            : cartModel.product!.discount;
+        String? disType = (restaurant.discount != null &&
+                DateConverter.isAvailable(restaurant.discount!.startTime,
+                    restaurant.discount!.endTime))
+            ? 'percent'
+            : cartModel.product!.discountType;
 
-        double d = ((cartModel.product!.price! - PriceConverter.convertWithDiscount(cartModel.product!.price!, dis, disType)!) * cartModel.quantity!);
+        double d = ((cartModel.product!.price! -
+                PriceConverter.convertWithDiscount(
+                    cartModel.product!.price!, dis, disType)!) *
+            cartModel.quantity!);
         discount = discount! + d;
-        discount = discount + _calculateVariationPrice(restaurant: restaurant, cartModel: cartModel);
-
-
+        discount = discount +
+            _calculateVariationPrice(
+                restaurant: restaurant, cartModel: cartModel);
       }
 
       if (restaurant.discount != null) {
-        if (restaurant.discount!.maxDiscount != 0 && restaurant.discount!.maxDiscount! < discount!) {
+        if (restaurant.discount!.maxDiscount != 0 &&
+            restaurant.discount!.maxDiscount! < discount!) {
           discount = restaurant.discount!.maxDiscount;
         }
-        if (restaurant.discount!.minPurchase != 0 && restaurant.discount!.minPurchase! > (price + addOns)) {
+        if (restaurant.discount!.minPurchase != 0 &&
+            restaurant.discount!.minPurchase! > (price + addOns)) {
           discount = 0;
         }
       }
-
     }
     return PriceConverter.toFixed(discount!);
   }
 
-  double _calculateVariationPrice({required Restaurant? restaurant, required CartModel? cartModel}) {
+  double _calculateVariationPrice(
+      {required Restaurant? restaurant, required CartModel? cartModel}) {
     double variationPrice = 0;
     double variationDiscount = 0;
-    if(restaurant != null && cartModel != null) {
+    if (restaurant != null && cartModel != null) {
+      double? discount = (restaurant.discount != null &&
+              DateConverter.isAvailable(
+                  restaurant.discount!.startTime, restaurant.discount!.endTime))
+          ? restaurant.discount!.discount
+          : cartModel.product!.discount;
+      String? discountType = (restaurant.discount != null &&
+              DateConverter.isAvailable(
+                  restaurant.discount!.startTime, restaurant.discount!.endTime))
+          ? 'percent'
+          : cartModel.product!.discountType;
 
-      double? discount = (restaurant.discount != null
-          && DateConverter.isAvailable(restaurant.discount!.startTime, restaurant.discount!.endTime))
-          ? restaurant.discount!.discount : cartModel.product!.discount;
-      String? discountType = (restaurant.discount != null
-          && DateConverter.isAvailable(restaurant.discount!.startTime, restaurant.discount!.endTime))
-          ? 'percent' : cartModel.product!.discountType;
-
-      for(int index = 0; index< cartModel.product!.variations!.length; index++) {
-        for(int i=0; i<cartModel.product!.variations![index].variationValues!.length; i++) {
-          if(cartModel.variations![index][i]!) {
-            variationPrice += (PriceConverter.convertWithDiscount(cartModel.product!.variations![index].variationValues![i].optionPrice!, discount, discountType, isVariation: true)! * cartModel.quantity!);
-            variationDiscount += (cartModel.product!.variations![index].variationValues![i].optionPrice! * cartModel.quantity!);
+      for (int index = 0;
+          index < cartModel.product!.variations!.length;
+          index++) {
+        for (int i = 0;
+            i < cartModel.product!.variations![index].variationValues!.length;
+            i++) {
+          if (cartModel.variations![index][i]!) {
+            variationPrice += (PriceConverter.convertWithDiscount(
+                    cartModel.product!.variations![index].variationValues![i]
+                        .optionPrice!,
+                    discount,
+                    discountType,
+                    isVariation: true)! *
+                cartModel.quantity!);
+            variationDiscount += (cartModel.product!.variations![index]
+                    .variationValues![i].optionPrice! *
+                cartModel.quantity!);
           }
         }
       }
@@ -624,43 +1041,56 @@ class CheckoutScreenState extends State<CheckoutScreen> {
     return PriceConverter.toFixed(subTotal);
   }
 
-  double _calculateOrderAmount(double price, double addOnsPrice, double discount, double couponDiscount, double referralDiscount) {
-    double orderAmount = (price - discount) + addOnsPrice - couponDiscount - referralDiscount;
+  double _calculateOrderAmount(double price, double addOnsPrice,
+      double discount, double couponDiscount, double referralDiscount) {
+    double orderAmount =
+        (price - discount) + addOnsPrice - couponDiscount - referralDiscount;
     return PriceConverter.toFixed(orderAmount);
   }
 
-  double _calculateTax(bool taxIncluded, double orderAmount, double? taxPercent) {
+  double _calculateTax(
+      bool taxIncluded, double orderAmount, double? taxPercent) {
     double tax = 0;
-    if(taxIncluded){
-      tax = orderAmount * taxPercent! /(100 + taxPercent);
-    }else {
+    if (taxIncluded) {
+      tax = orderAmount * taxPercent! / (100 + taxPercent);
+    } else {
       tax = PriceConverter.calculation(orderAmount, taxPercent, 'percent', 1);
     }
     return PriceConverter.toFixed(tax);
   }
 
-  int _getSubscriptionQty({required CheckoutController checkoutController, required bool restaurantSubscriptionActive}) {
+  int _getSubscriptionQty(
+      {required CheckoutController checkoutController,
+      required bool restaurantSubscriptionActive}) {
     int subscriptionQty = checkoutController.subscriptionOrder ? 0 : 1;
-    if(restaurantSubscriptionActive){
-      if(checkoutController.subscriptionOrder && checkoutController.subscriptionRange != null) {
-        if(checkoutController.subscriptionType == 'weekly') {
+    if (restaurantSubscriptionActive) {
+      if (checkoutController.subscriptionOrder &&
+          checkoutController.subscriptionRange != null) {
+        if (checkoutController.subscriptionType == 'weekly') {
           List<int> weekDays = [];
-          for(int index=0; index<checkoutController.selectedDays.length; index++) {
-            if(checkoutController.selectedDays[index] != null) {
+          for (int index = 0;
+              index < checkoutController.selectedDays.length;
+              index++) {
+            if (checkoutController.selectedDays[index] != null) {
               weekDays.add(index + 1);
             }
           }
-          subscriptionQty = DateConverter.getWeekDaysCount(checkoutController.subscriptionRange!, weekDays);
-        }else if(checkoutController.subscriptionType == 'monthly') {
+          subscriptionQty = DateConverter.getWeekDaysCount(
+              checkoutController.subscriptionRange!, weekDays);
+        } else if (checkoutController.subscriptionType == 'monthly') {
           List<int> days = [];
-          for(int index=0; index<checkoutController.selectedDays.length; index++) {
-            if(checkoutController.selectedDays[index] != null) {
+          for (int index = 0;
+              index < checkoutController.selectedDays.length;
+              index++) {
+            if (checkoutController.selectedDays[index] != null) {
               days.add(index + 1);
             }
           }
-          subscriptionQty = DateConverter.getMonthDaysCount(checkoutController.subscriptionRange!, days);
-        }else {
-          subscriptionQty = checkoutController.subscriptionRange!.duration.inDays + 1;
+          subscriptionQty = DateConverter.getMonthDaysCount(
+              checkoutController.subscriptionRange!, days);
+        } else {
+          subscriptionQty =
+              checkoutController.subscriptionRange!.duration.inDays + 1;
         }
       }
     }
@@ -668,30 +1098,61 @@ class CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   double _calculateTotal(
-      double subTotal, double deliveryCharge, double discount, double couponDiscount,
-      bool taxIncluded, double tax, bool showTips, double tips, double additionalCharge, double extraPackagingCharge, double packagingPrice) {
-
-    double total = subTotal + deliveryCharge - discount - couponDiscount + (taxIncluded ? 0 : tax)
-        + (showTips ? tips : 0) + additionalCharge + extraPackagingCharge + packagingPrice;
+      double subTotal,
+      double deliveryCharge,
+      double discount,
+      double couponDiscount,
+      bool taxIncluded,
+      double tax,
+      bool showTips,
+      double tips,
+      double additionalCharge,
+      double extraPackagingCharge,
+      double packagingPrice) {
+    double total = subTotal +
+        deliveryCharge -
+        discount -
+        couponDiscount +
+        (taxIncluded ? 0 : tax) +
+        (showTips ? tips : 0) +
+        additionalCharge +
+        extraPackagingCharge +
+        packagingPrice;
 
     return PriceConverter.toFixed(total);
   }
 
   double _calculateExtraPackagingCharge(CheckoutController checkoutController) {
-    if(((checkoutController.restaurant != null && checkoutController.restaurant!.isExtraPackagingActive! && !checkoutController.restaurant!.extraPackagingStatusIsMandatory! && Get.find<CartController>().needExtraPackage)
-        || (checkoutController.restaurant != null && checkoutController.restaurant!.isExtraPackagingActive! && checkoutController.restaurant!.extraPackagingStatusIsMandatory!)) && checkoutController.orderType != 'dine_in') {
+    if (((checkoutController.restaurant != null &&
+                checkoutController.restaurant!.isExtraPackagingActive! &&
+                !checkoutController
+                    .restaurant!.extraPackagingStatusIsMandatory! &&
+                Get.find<CartController>().needExtraPackage) ||
+            (checkoutController.restaurant != null &&
+                checkoutController.restaurant!.isExtraPackagingActive! &&
+                checkoutController
+                    .restaurant!.extraPackagingStatusIsMandatory!)) &&
+        checkoutController.orderType != 'dine_in') {
       return checkoutController.restaurant?.extraPackagingAmount ?? 0;
     }
     return 0;
   }
 
-  double _calculateReferralDiscount(double subTotal, double discount, double couponDiscount, bool isSubscriptionOrder) {
+  double _calculateReferralDiscount(double subTotal, double discount,
+      double couponDiscount, bool isSubscriptionOrder) {
     double referralDiscount = 0;
-    if(Get.find<ProfileController>().userInfoModel != null &&  Get.find<ProfileController>().userInfoModel!.isValidForDiscount! && !isSubscriptionOrder) {
-      if (Get.find<ProfileController>().userInfoModel!.discountAmountType! == "percentage") {
-        referralDiscount = (Get.find<ProfileController>().userInfoModel!.discountAmount! / 100) * (subTotal - discount - couponDiscount);
+    if (Get.find<ProfileController>().userInfoModel != null &&
+        Get.find<ProfileController>().userInfoModel!.isValidForDiscount! &&
+        !isSubscriptionOrder) {
+      if (Get.find<ProfileController>().userInfoModel!.discountAmountType! ==
+          "percentage") {
+        referralDiscount =
+            (Get.find<ProfileController>().userInfoModel!.discountAmount! /
+                    100) *
+                (subTotal - discount - couponDiscount);
       } else {
-        referralDiscount = Get.find<ProfileController>().userInfoModel!.discountAmount!;
+        referralDiscount =
+            Get.find<ProfileController>().userInfoModel!.discountAmount!;
       }
     }
     return PriceConverter.toFixed(referralDiscount);
@@ -699,12 +1160,14 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> showCashBackSnackBar() async {
     await Get.find<HomeController>().getCashBackData(_payableAmount!);
-    double? cashBackAmount = Get.find<HomeController>().cashBackData?.cashbackAmount ?? 0;
-    String? cashBackType = Get.find<HomeController>().cashBackData?.cashbackType ?? '';
-    String text = '${'you_will_get'.tr} ${cashBackType == 'amount' ? PriceConverter.convertPrice(cashBackAmount) : '${cashBackAmount.toStringAsFixed(0)}%'} ${'cash_back_after_completing_order'.tr}';
-    if(cashBackAmount > 0) {
+    double? cashBackAmount =
+        Get.find<HomeController>().cashBackData?.cashbackAmount ?? 0;
+    String? cashBackType =
+        Get.find<HomeController>().cashBackData?.cashbackType ?? '';
+    String text =
+        '${'you_will_get'.tr} ${cashBackType == 'amount' ? PriceConverter.convertPrice(cashBackAmount) : '${cashBackAmount.toStringAsFixed(0)}%'} ${'cash_back_after_completing_order'.tr}';
+    if (cashBackAmount > 0) {
       showCustomSnackBar(text, isError: false);
     }
   }
-
 }

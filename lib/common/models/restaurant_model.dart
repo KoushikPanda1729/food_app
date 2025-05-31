@@ -8,14 +8,31 @@ class RestaurantModel {
 
   RestaurantModel({this.totalSize, this.limit, this.offset, this.restaurants});
 
-  RestaurantModel.fromJson(Map<String, dynamic> json) {
+  RestaurantModel.fromJson(Map<String, dynamic> json, String? restaurant) {
+    print("RestaurantModel.fromJson: $restaurant");
     totalSize = json['total_size'];
     limit = json['limit'].toString();
-    offset = (json['offset'] != null && json['offset'].toString().trim().isNotEmpty) ? int.parse(json['offset'].toString()) : null;
+    offset =
+        (json['offset'] != null && json['offset'].toString().trim().isNotEmpty)
+            ? int.parse(json['offset'].toString())
+            : null;
     if (json['restaurants'] != null) {
       restaurants = [];
       json['restaurants'].forEach((v) {
-        restaurants!.add(Restaurant.fromJson(v));
+        if (restaurant != null && restaurant.toLowerCase() == "shanghai") {
+          if (v['cuisine'] != null &&
+              (v['cuisine'] as List).any((e) => e['name'] == "Pan Asian")) {
+            restaurants!.add(Restaurant.fromJson(v));
+          }
+        } else if (restaurant != null &&
+            restaurant.toLowerCase() == "saltanat") {
+          if (v['cuisine'] != null &&
+              (v['cuisine'] as List).any((e) => e['name'] == "Mughlai")) {
+            restaurants!.add(Restaurant.fromJson(v));
+          }
+        } else {
+          restaurants!.add(Restaurant.fromJson(v));
+        }
       });
     }
   }
@@ -173,7 +190,8 @@ class Restaurant {
     longitude = json['longitude'];
     address = json['address'];
     zoneId = json['zone_id'];
-    minimumOrder = json['minimum_order'] != null ? json['minimum_order'].toDouble() : 0;
+    minimumOrder =
+        json['minimum_order'] != null ? json['minimum_order'].toDouble() : 0;
     currency = json['currency'];
     freeDelivery = json['free_delivery'];
     coverPhotoFullUrl = json['cover_photo_full_url'] ?? '';
@@ -191,21 +209,29 @@ class Restaurant {
     deliveryTime = json['delivery_time'];
     veg = json['veg'];
     nonVeg = json['non_veg'];
-    categoryIds = json['category_ids'] != null ? json['category_ids'].cast<int>() : [];
-    discount = json['discount'] != null ? Discount.fromJson(json['discount']) : null;
+    categoryIds =
+        json['category_ids'] != null ? json['category_ids'].cast<int>() : [];
+    discount =
+        json['discount'] != null ? Discount.fromJson(json['discount']) : null;
     if (json['schedules'] != null) {
       schedules = <Schedules>[];
       json['schedules'].forEach((v) {
         schedules!.add(Schedules.fromJson(v));
       });
     }
-    minimumShippingCharge = json['minimum_shipping_charge'] != null ? json['minimum_shipping_charge'].toDouble() : 0.0;
-    perKmShippingCharge = json['per_km_shipping_charge'] != null ? json['per_km_shipping_charge'].toDouble() : 0.0;
+    minimumShippingCharge = json['minimum_shipping_charge'] != null
+        ? json['minimum_shipping_charge'].toDouble()
+        : 0.0;
+    perKmShippingCharge = json['per_km_shipping_charge'] != null
+        ? json['per_km_shipping_charge'].toDouble()
+        : 0.0;
     maximumShippingCharge = json['maximum_shipping_charge']?.toDouble();
     vendorId = json['vendor_id'];
     restaurantModel = json['restaurant_model'];
     restaurantStatus = json['restaurant_status'];
-    restaurantSubscription = json['restaurant_sub'] != null ? RestaurantSubscription.fromJson(json['restaurant_sub']) : null;
+    restaurantSubscription = json['restaurant_sub'] != null
+        ? RestaurantSubscription.fromJson(json['restaurant_sub'])
+        : null;
     if (json['cuisine'] != null) {
       cuisineNames = [];
       json['cuisine'].forEach((v) {
@@ -234,7 +260,10 @@ class Restaurant {
     customerDateOrderStatus = json['customer_date_order_sratus'];
     customerOrderDate = json['customer_order_date'];
     freeDeliveryDistanceStatus = json['free_delivery_distance_status'];
-    freeDeliveryDistanceValue = (json['free_delivery_distance_value'] != null && json['free_delivery_distance_value'] != '') ? double.parse(json['free_delivery_distance_value'].toString()) : null;
+    freeDeliveryDistanceValue = (json['free_delivery_distance_value'] != null &&
+            json['free_delivery_distance_value'] != '')
+        ? double.parse(json['free_delivery_distance_value'].toString())
+        : null;
     restaurantOpeningTime = json['current_opening_time'];
     extraPackagingStatusIsMandatory = json['extra_packaging_status'] ?? false;
     extraPackagingAmount = json['extra_packaging_amount']?.toDouble() ?? 0;
@@ -252,11 +281,15 @@ class Restaurant {
       });
     }
     isExtraPackagingActive = json['is_extra_packaging_active'];
-    scheduleAdvanceDineInBookingDuration = json['schedule_advance_dine_in_booking_duration'];
-    scheduleAdvanceDineInBookingDurationTimeFormat = json['schedule_advance_dine_in_booking_duration_time_format'];
+    scheduleAdvanceDineInBookingDuration =
+        json['schedule_advance_dine_in_booking_duration'];
+    scheduleAdvanceDineInBookingDurationTimeFormat =
+        json['schedule_advance_dine_in_booking_duration_time_format'];
     isActiveDineIn = json['is_dine_in_active'] ?? false;
-    dineInBookingDuration = json['schedule_advance_dine_in_booking_duration'] ?? 0;
-    dineInBookingDurationTimeFormat = json['schedule_advance_dine_in_booking_duration_time_format'];
+    dineInBookingDuration =
+        json['schedule_advance_dine_in_booking_duration'] ?? 0;
+    dineInBookingDurationTimeFormat =
+        json['schedule_advance_dine_in_booking_duration_time_format'];
   }
 
   Map<String, dynamic> toJson() {
@@ -323,11 +356,14 @@ class Restaurant {
       data['characteristics'] = characteristics!.map((v) => v).toList();
     }
     data['is_extra_packaging_active'] = isExtraPackagingActive;
-    data['schedule_advance_dine_in_booking_duration'] = scheduleAdvanceDineInBookingDuration;
-    data['schedule_advance_dine_in_booking_duration_time_format'] = scheduleAdvanceDineInBookingDurationTimeFormat;
+    data['schedule_advance_dine_in_booking_duration'] =
+        scheduleAdvanceDineInBookingDuration;
+    data['schedule_advance_dine_in_booking_duration_time_format'] =
+        scheduleAdvanceDineInBookingDurationTimeFormat;
     data['is_dine_in_active'] = isActiveDineIn;
     data['schedule_advance_dine_in_booking_duration'] = dineInBookingDuration;
-    data['schedule_advance_dine_in_booking_duration_time_format'] = dineInBookingDurationTimeFormat;
+    data['schedule_advance_dine_in_booking_duration_time_format'] =
+        dineInBookingDurationTimeFormat;
     return data;
   }
 }
@@ -401,7 +437,12 @@ class Schedules {
   String? openingTime;
   String? closingTime;
 
-  Schedules({this.id, this.restaurantId, this.day, this.openingTime, this.closingTime});
+  Schedules(
+      {this.id,
+      this.restaurantId,
+      this.day,
+      this.openingTime,
+      this.closingTime});
 
   Schedules.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -519,7 +560,7 @@ class Refund {
     if (json['image_full_url'] != null) {
       imageFullUrl = <String>[];
       json['image_full_url'].forEach((v) {
-        if(v != null) {
+        if (v != null) {
           imageFullUrl!.add(v);
         }
       });
@@ -714,7 +755,14 @@ class Cuisines {
   String? createdAt;
   String? updatedAt;
 
-  Cuisines({this.id, this.name, this.image, this.status, this.slug, this.createdAt, this.updatedAt});
+  Cuisines(
+      {this.id,
+      this.name,
+      this.image,
+      this.status,
+      this.slug,
+      this.createdAt,
+      this.updatedAt});
 
   Cuisines.fromJson(Map<String, dynamic> json) {
     id = json['id'];

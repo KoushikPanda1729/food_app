@@ -1,17 +1,17 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:stackfood_multivendor/features/checkout/controllers/checkout_controller.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/delivery_instruction_bottom_sheet.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
-import 'package:stackfood_multivendor/util/app_constants.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class DeliveryInstructionView extends StatefulWidget {
   const DeliveryInstructionView({super.key});
 
   @override
-  State<DeliveryInstructionView> createState() => _DeliveryInstructionViewState();
+  State<DeliveryInstructionView> createState() =>
+      _DeliveryInstructionViewState();
 }
 
 class _DeliveryInstructionViewState extends State<DeliveryInstructionView> {
@@ -24,46 +24,59 @@ class _DeliveryInstructionViewState extends State<DeliveryInstructionView> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-        border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.5), width: 0.5),
+        border: Border.all(
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
+            width: 0.5),
       ),
       padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-      margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
+      margin: const EdgeInsets.symmetric(
+          horizontal: Dimensions.paddingSizeDefault,
+          vertical: Dimensions.paddingSizeSmall),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           InkWell(
-            onTap: (){
-              if(isDesktop) {
-                Get.dialog(const Dialog(child: DeliveryInstructionBottomSheet()));
+            onTap: () {
+              if (isDesktop) {
+                Get.dialog(
+                    const Dialog(child: DeliveryInstructionBottomSheet()));
               } else {
                 showModalBottomSheet(
-                  context: context, isScrollControlled: true, backgroundColor: Colors.transparent,
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
                   builder: (con) => const DeliveryInstructionBottomSheet(),
                 );
               }
             },
             child: Row(children: [
-              Expanded(child: Text('add_more_delivery_instruction'.tr, style: robotoMedium, maxLines: 2, overflow: TextOverflow.ellipsis)),
+              Expanded(
+                  child: Text('add_more_delivery_instruction'.tr,
+                      style: robotoMedium,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis)),
               const Icon(Icons.keyboard_arrow_down, size: 20),
             ]),
           ),
-
-
-          GetBuilder<CheckoutController>(
-            builder: (checkoutController) {
-              return checkoutController.selectedInstruction != -1 ? Row(children: [
-                Text(
-                  checkoutController.deliveryInstructionList[checkoutController.selectedInstruction].tr,
-                  style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor),
-                ),
-
-                IconButton(
-                  onPressed: ()=> checkoutController.setInstruction(-1),
-                  icon: const Icon(Icons.clear, size: 18),
-                )
-              ]) : const SizedBox();
-            }
-          ),
+          GetBuilder<CheckoutController>(builder: (checkoutController) {
+            return checkoutController.selectedInstruction != -1
+                ? Row(children: [
+                    Text(
+                      checkoutController
+                          .deliveryInstructionList[
+                              checkoutController.selectedInstruction]
+                          .tr,
+                      style: robotoMedium.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                          color: Theme.of(context).primaryColor),
+                    ),
+                    IconButton(
+                      onPressed: () => checkoutController.setInstruction(-1),
+                      icon: const Icon(Icons.clear, size: 18),
+                    )
+                  ])
+                : const SizedBox();
+          }),
         ],
       ),
     );

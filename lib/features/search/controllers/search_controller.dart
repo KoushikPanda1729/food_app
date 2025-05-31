@@ -41,7 +41,12 @@ class SearchController extends GetxController implements GetxService {
   bool _isSearchMode = true;
   bool get isSearchMode => _isSearchMode;
 
-  final List<String> _sortList = ['ascending'.tr, 'descending'.tr, 'price_low_to_high'.tr, 'price_high_to_low'.tr];
+  final List<String> _sortList = [
+    'ascending'.tr,
+    'descending'.tr,
+    'price_low_to_high'.tr,
+    'price_high_to_low'.tr
+  ];
   List<String> get sortList => _sortList;
 
   final List<String> _restaurantSortList = ['ascending'.tr, 'descending'.tr];
@@ -83,7 +88,6 @@ class SearchController extends GetxController implements GetxService {
   bool _isNewArrivalsRestaurant = false;
   bool get isNewArrivalsRestaurant => _isNewArrivalsRestaurant;
 
-
   bool _isPopularFood = false;
   bool get isPopularFood => _isPopularFood;
 
@@ -119,9 +123,8 @@ class SearchController extends GetxController implements GetxService {
   bool _isOpenRestaurant = false;
   bool get isOpenRestaurant => _isOpenRestaurant;
 
-
   void selectCuisine(int cuisineId) {
-    if(_selectedCuisines.contains(cuisineId)) {
+    if (_selectedCuisines.contains(cuisineId)) {
       _selectedCuisines.removeAt(_selectedCuisines.indexOf(cuisineId));
     } else {
       _selectedCuisines.add(cuisineId);
@@ -201,7 +204,7 @@ class SearchController extends GetxController implements GetxService {
 
   void setSearchMode(bool isSearchMode, {bool canUpdate = true}) {
     _isSearchMode = isSearchMode;
-    if(isSearchMode) {
+    if (isSearchMode) {
       _searchText = '';
       _allRestList = null;
       // _allProductList = null;
@@ -224,10 +227,10 @@ class SearchController extends GetxController implements GetxService {
       _upperValue = 0;
       _lowerValue = 0;
     }
-    if (_isRestaurant){
+    if (_isRestaurant) {
       _isRestaurant = !_isRestaurant;
     }
-    if(canUpdate) {
+    if (canUpdate) {
       update();
     }
   }
@@ -261,8 +264,9 @@ class SearchController extends GetxController implements GetxService {
 
   Future<List<String>> getSearchSuggestions(String searchText) async {
     List<String> foods = <String>[];
-    _searchSuggestionModel = await searchServiceInterface.getSearchSuggestions(searchText);
-    if(_searchSuggestionModel != null) {
+    _searchSuggestionModel =
+        await searchServiceInterface.getSearchSuggestions(searchText);
+    if (_searchSuggestionModel != null) {
       for (var food in _searchSuggestionModel!.foods!) {
         foods.add(food.name!);
       }
@@ -275,99 +279,102 @@ class SearchController extends GetxController implements GetxService {
   }
 
   Future<void> searchData1(String query, int offset) async {
-
-    int rating = searchServiceInterface.findRatings(_isRestaurant ? _restaurantRating : _rating);
-    bool isNewActive = _isRestaurant ? _isNewArrivalsRestaurant : _isNewArrivalsFoods;
+    int rating = searchServiceInterface
+        .findRatings(_isRestaurant ? _restaurantRating : _rating);
+    bool isNewActive =
+        _isRestaurant ? _isNewArrivalsRestaurant : _isNewArrivalsFoods;
     bool isPopular = _isRestaurant ? _isPopularRestaurant : _isPopularFood;
-    String type = searchServiceInterface.processType(_isRestaurant, _restaurantVeg, _restaurantNonVeg, _veg, _nonVeg);
-    bool discounted = _isRestaurant ? _isDiscountedRestaurant : _isDiscountedFoods;
-    String sortBy = searchServiceInterface.getSortBy(_isRestaurant, _restaurantSortIndex, _sortIndex);
+    String type = searchServiceInterface.processType(
+        _isRestaurant, _restaurantVeg, _restaurantNonVeg, _veg, _nonVeg);
+    bool discounted =
+        _isRestaurant ? _isDiscountedRestaurant : _isDiscountedFoods;
+    String sortBy = searchServiceInterface.getSortBy(
+        _isRestaurant, _restaurantSortIndex, _sortIndex);
 
     // if((_isRestaurant && query.isNotEmpty && query != _restResultText) || (!_isRestaurant && query.isNotEmpty && query != _prodResultText || offset != 1) || fromFilter) {
-      _searchText = query;
-      // _rating = -1;
-      // _restaurantRating = -1;
-      // _upperValue = 0;
-      // _lowerValue = 0;
-      if(offset == 1) {
+    _searchText = query;
+    // _rating = -1;
+    // _restaurantRating = -1;
+    // _upperValue = 0;
+    // _lowerValue = 0;
+    if (offset == 1) {
+      if (_isRestaurant) {
+        _searchRestList = null;
+        _allRestList = null;
+      } else {
+        _searchProductList = null;
+        // _allProductList = null;
+      }
+    } else {
+      _paginate = true;
+    }
+    if (!_historyList.contains(query)) {
+      _historyList.insert(0, query);
+    }
+    searchServiceInterface.saveSearchHistory(_historyList);
+    _isSearchMode = false;
+    update();
+
+    Response response = await searchServiceInterface.getSearchData(
+      query: query,
+      isRestaurant: _isRestaurant,
+      offset: offset,
+      type: type,
+      isNew: isNewActive ? 1 : 0,
+      isPopular: isPopular ? 1 : 0,
+      isOneRatting: rating == 1 ? 1 : 0,
+      isTwoRatting: rating == 2 ? 1 : 0,
+      isThreeRatting: rating == 3 ? 1 : 0,
+      isFourRatting: rating == 4 ? 1 : 0,
+      isFiveRatting: rating == 5 ? 1 : 0,
+      sortBy: sortBy,
+      discounted: discounted ? 1 : 0,
+      minPrice: _lowerValue,
+      maxPrice: _upperValue,
+      selectedCuisines: _selectedCuisines,
+      isOpenRestaurant: _isOpenRestaurant ? 1 : 0,
+    );
+
+    if (response.statusCode == 200) {
+      if (query.isEmpty) {
         if (_isRestaurant) {
-          _searchRestList = null;
-          _allRestList = null;
+          _searchRestList = [];
         } else {
-          _searchProductList = null;
-          // _allProductList = null;
+          _searchProductList = [];
         }
       } else {
-        _paginate = true;
-      }
-      if (!_historyList.contains(query)) {
-        _historyList.insert(0, query);
-      }
-      searchServiceInterface.saveSearchHistory(_historyList);
-      _isSearchMode = false;
-      update();
-
-      Response response = await searchServiceInterface.getSearchData(
-          query: query,
-          isRestaurant: _isRestaurant,
-          offset: offset,
-          type: type,
-          isNew: isNewActive ? 1 : 0,
-          isPopular: isPopular ? 1 : 0,
-          isOneRatting: rating == 1 ? 1 : 0,
-          isTwoRatting: rating == 2 ? 1 : 0,
-          isThreeRatting: rating == 3 ? 1 : 0,
-          isFourRatting: rating == 4 ? 1 : 0,
-          isFiveRatting: rating == 5 ? 1 : 0,
-          sortBy: sortBy,
-          discounted: discounted ? 1 : 0,
-        minPrice: _lowerValue, maxPrice: _upperValue,
-        selectedCuisines: _selectedCuisines,
-        isOpenRestaurant: _isOpenRestaurant ? 1 : 0,
-      );
-
-      if (response.statusCode == 200) {
-        if (query.isEmpty) {
-          if (_isRestaurant) {
+        if (_isRestaurant) {
+          if (offset == 1) {
             _searchRestList = [];
-          } else {
-            _searchProductList = [];
+            _allRestList = [];
           }
+          _searchRestList!
+              .addAll(RestaurantModel.fromJson(response.body, "").restaurants!);
+          _allRestList!
+              .addAll(RestaurantModel.fromJson(response.body, "").restaurants!);
+          totalSize = RestaurantModel.fromJson(response.body, "").totalSize;
+          pageOffset = RestaurantModel.fromJson(response.body, "").offset;
         } else {
-
-          if (_isRestaurant) {
-            if(offset == 1) {
-              _searchRestList = [];
-              _allRestList = [];
-            }
-            _searchRestList!.addAll(RestaurantModel.fromJson(response.body).restaurants!);
-            _allRestList!.addAll(RestaurantModel.fromJson(response.body).restaurants!);
-            totalSize = RestaurantModel.fromJson(response.body).totalSize;
-            pageOffset = RestaurantModel.fromJson(response.body).offset;
-          } else {
-            if(offset == 1) {
-              _searchProductList = [];
-              // _allProductList = [];
-            }
-            _searchProductList!.addAll(ProductModel.fromJson(response.body).products!);
-            // _allProductList!.addAll(ProductModel.fromJson(response.body).products!);
-            totalSize = ProductModel.fromJson(response.body).totalSize;
-            pageOffset = ProductModel.fromJson(response.body).offset;
-            if(_lowerValue == 0 || _upperValue == 0) {
-              _lowerValue = ProductModel.fromJson(response.body).minPrice ?? 0;
-              _upperValue = ProductModel.fromJson(response.body).maxPrice ?? 0;
-            }
+          if (offset == 1) {
+            _searchProductList = [];
+            // _allProductList = [];
           }
-
+          _searchProductList!
+              .addAll(ProductModel.fromJson(response.body).products!);
+          // _allProductList!.addAll(ProductModel.fromJson(response.body).products!);
+          totalSize = ProductModel.fromJson(response.body).totalSize;
+          pageOffset = ProductModel.fromJson(response.body).offset;
+          if (_lowerValue == 0 || _upperValue == 0) {
+            _lowerValue = ProductModel.fromJson(response.body).minPrice ?? 0;
+            _upperValue = ProductModel.fromJson(response.body).maxPrice ?? 0;
+          }
         }
-
       }
+    }
     // }
     _paginate = false;
     update();
   }
-
-
 
   // void searchData(String query) async {
   //   if((_isRestaurant && query.isNotEmpty && query != _restResultText) || (!_isRestaurant && query.isNotEmpty && query != _prodResultText)) {
@@ -505,5 +512,4 @@ class SearchController extends GetxController implements GetxService {
     }
     searchServiceInterface.saveSearchHistory(_historyList);
   }
-
 }

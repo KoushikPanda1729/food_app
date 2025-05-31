@@ -6,108 +6,120 @@ import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 class AllRestaurantFilterWidget extends StatelessWidget {
-  const AllRestaurantFilterWidget({super.key, });
+  const AllRestaurantFilterWidget({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<RestaurantController>(
-      builder: (restaurantController) {
-        return Center(
-          child: ResponsiveHelper.isDesktop(context) ? Container(
-              height: 70,
-              width: Dimensions.webMaxWidth,
-              color: Theme.of(context).colorScheme.surface,
-
-              child: Row(
-                children: [
-
-                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('all_restaurants'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge, fontWeight: FontWeight.w600)),
-
-                    Text(
-                      '${restaurantController.restaurantModel != null ? restaurantController.restaurantModel!.totalSize : 0} ${'restaurants_near_you'.tr}',
-                      style: robotoRegular.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
-                    ),
-                  ]),
-
-                  const Expanded(child: SizedBox()),
-
-                  filter(context, restaurantController),
-                  const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                ],
-              )
-
-          ) : Container(
-            transform: Matrix4.translationValues(0, -2, 0),
-            color: Theme.of(context).colorScheme.surface,
-            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, /*vertical: Dimensions.paddingSizeExtraSmall*/),
-            child: Column(children: [
-
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text('all_restaurants'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
-                Flexible(
-                  child: Text(
-                    '${restaurantController.restaurantModel != null ? restaurantController.restaurantModel!.totalSize : 0} ${'restaurants_near_you'.tr}',
-                    maxLines: 1, overflow: TextOverflow.ellipsis,
-                    style: robotoRegular.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
-                  ),
+    return GetBuilder<RestaurantController>(builder: (restaurantController) {
+      return Center(
+        child: ResponsiveHelper.isDesktop(context)
+            ? Container(
+                height: 70,
+                width: Dimensions.webMaxWidth,
+                color: Theme.of(context).colorScheme.surface,
+                child: Row(
+                  children: [
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('all_restaurants'.tr,
+                              style: robotoBold.copyWith(
+                                  fontSize: Dimensions.fontSizeLarge,
+                                  fontWeight: FontWeight.w600)),
+                          Text(
+                            '${restaurantController.restaurantModel != null ? restaurantController.restaurantModel!.totalSize : 0} ${'restaurants_near_you'.tr}',
+                            style: robotoRegular.copyWith(
+                                color: Theme.of(context).hintColor,
+                                fontSize: Dimensions.fontSizeSmall),
+                          ),
+                        ]),
+                    const Expanded(child: SizedBox()),
+                    filter(context, restaurantController),
+                    const SizedBox(width: Dimensions.paddingSizeSmall),
+                  ],
+                ))
+            : Container(
+                transform: Matrix4.translationValues(0, -2, 0),
+                color: Theme.of(context).colorScheme.surface,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dimensions
+                      .paddingSizeDefault, /*vertical: Dimensions.paddingSizeExtraSmall*/
                 ),
-              ]),
-              const SizedBox(height: Dimensions.paddingSizeDefault),
-
-              filter(context, restaurantController),
-              const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-
-              Divider(),
-            ]),
-          ),
-        );
-      }
-    );
+                child: Column(children: [
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('all_restaurants'.tr,
+                            style: robotoBold.copyWith(
+                                fontSize: Dimensions.fontSizeLarge)),
+                        Flexible(
+                          child: Text(
+                            '${restaurantController.restaurantModel != null ? restaurantController.restaurantModel!.totalSize : 0} ${'restaurants_near_you'.tr}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: robotoRegular.copyWith(
+                                color: Theme.of(context).hintColor,
+                                fontSize: Dimensions.fontSizeSmall),
+                          ),
+                        ),
+                      ]),
+                  const SizedBox(height: Dimensions.paddingSizeDefault),
+                  filter(context, restaurantController),
+                  const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                  Divider(),
+                ]),
+              ),
+      );
+    });
   }
 
-  Widget filter(BuildContext context, RestaurantController restaurantController) {
+  Widget filter(
+      BuildContext context, RestaurantController restaurantController) {
     return SizedBox(
       height: ResponsiveHelper.isDesktop(context) ? 40 : 30,
       child: ListView(
         scrollDirection: Axis.horizontal,
         shrinkWrap: true,
         children: [
-          ResponsiveHelper.isDesktop(context) ? const SizedBox() : const FilterViewWidget(),
+          ResponsiveHelper.isDesktop(context)
+              ? const SizedBox()
+              : const FilterViewWidget(),
           const SizedBox(width: Dimensions.paddingSizeSmall),
-
           RestaurantsFilterButtonWidget(
             buttonText: 'top_rated'.tr,
-            onTap: () => restaurantController.setTopRated(),
+            onTap: (String? restaurant) =>
+                restaurantController.setTopRated(restaurant ?? ""),
             isSelected: restaurantController.topRated == 1,
           ),
           const SizedBox(width: Dimensions.paddingSizeSmall),
-
           RestaurantsFilterButtonWidget(
             buttonText: 'discounted'.tr,
-            onTap: () => restaurantController.setDiscount(),
+            onTap: (String? restaurant) =>
+                restaurantController.setDiscount(restaurant ?? ""),
             isSelected: restaurantController.discount == 1,
           ),
           const SizedBox(width: Dimensions.paddingSizeSmall),
-
           RestaurantsFilterButtonWidget(
             buttonText: 'veg'.tr,
-            onTap: () => restaurantController.setVeg(),
+            onTap: (String? restaurant) =>
+                restaurantController.setVeg(restaurant ?? ""),
             isSelected: restaurantController.veg == 1,
           ),
           const SizedBox(width: Dimensions.paddingSizeSmall),
-
           RestaurantsFilterButtonWidget(
             buttonText: 'non_veg'.tr,
-            onTap: () => restaurantController.setNonVeg(),
+            onTap: (String? restaurant) =>
+                restaurantController.setNonVeg(restaurant ?? ""),
             isSelected: restaurantController.nonVeg == 1,
           ),
           const SizedBox(width: Dimensions.paddingSizeSmall),
-
-          ResponsiveHelper.isDesktop(context) ? const FilterViewWidget() : const SizedBox(),
-
+          ResponsiveHelper.isDesktop(context)
+              ? const FilterViewWidget()
+              : const SizedBox(),
         ],
       ),
     );

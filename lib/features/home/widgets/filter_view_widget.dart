@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:stackfood_multivendor/common/controllers/app_controller.dart';
 import 'package:stackfood_multivendor/features/restaurant/controllers/restaurant_controller.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -9,6 +10,7 @@ class FilterViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String? currentRestaurant = Get.find<AppController>().currentRestaurant;
     return GetBuilder<RestaurantController>(builder: (restaurant) {
       return PopupMenuButton(
         itemBuilder: (context) {
@@ -18,18 +20,20 @@ class FilterViewWidget extends StatelessWidget {
               child: Text(
                 'all'.tr,
                 style: robotoMedium.copyWith(
-                  color: restaurant.restaurantType == 'all' ? Theme.of(context).textTheme.bodyLarge!.color : Theme.of(context).disabledColor,
+                  color: restaurant.restaurantType == 'all'
+                      ? Theme.of(context).textTheme.bodyLarge!.color
+                      : Theme.of(context).disabledColor,
                 ),
               ),
-
             ),
-
             PopupMenuItem(
               value: 'take_away',
               child: Text(
                 'take_away'.tr,
                 style: robotoMedium.copyWith(
-                  color: restaurant.restaurantType == 'take_away' ? Theme.of(context).textTheme.bodyLarge!.color : Theme.of(context).disabledColor,
+                  color: restaurant.restaurantType == 'take_away'
+                      ? Theme.of(context).textTheme.bodyLarge!.color
+                      : Theme.of(context).disabledColor,
                 ),
               ),
             ),
@@ -38,7 +42,9 @@ class FilterViewWidget extends StatelessWidget {
               child: Text(
                 'delivery'.tr,
                 style: robotoMedium.copyWith(
-                  color: restaurant.restaurantType == 'delivery' ? Theme.of(context).textTheme.bodyLarge!.color : Theme.of(context).disabledColor,
+                  color: restaurant.restaurantType == 'delivery'
+                      ? Theme.of(context).textTheme.bodyLarge!.color
+                      : Theme.of(context).disabledColor,
                 ),
               ),
             ),
@@ -47,7 +53,9 @@ class FilterViewWidget extends StatelessWidget {
               child: Text(
                 'dine_in'.tr,
                 style: robotoMedium.copyWith(
-                  color: restaurant.restaurantType == 'dine_in' ? Theme.of(context).textTheme.bodyLarge!.color : Theme.of(context).disabledColor,
+                  color: restaurant.restaurantType == 'dine_in'
+                      ? Theme.of(context).textTheme.bodyLarge!.color
+                      : Theme.of(context).disabledColor,
                 ),
               ),
             ),
@@ -56,7 +64,9 @@ class FilterViewWidget extends StatelessWidget {
               child: Text(
                 'latest'.tr,
                 style: robotoMedium.copyWith(
-                  color: restaurant.restaurantType == 'latest' ? Theme.of(context).textTheme.bodyLarge!.color : Theme.of(context).disabledColor,
+                  color: restaurant.restaurantType == 'latest'
+                      ? Theme.of(context).textTheme.bodyLarge!.color
+                      : Theme.of(context).disabledColor,
                 ),
               ),
             ),
@@ -65,24 +75,31 @@ class FilterViewWidget extends StatelessWidget {
               child: Text(
                 'popular'.tr,
                 style: robotoMedium.copyWith(
-                  color: restaurant.restaurantType == 'popular' ? Theme.of(context).textTheme.bodyLarge!.color : Theme.of(context).disabledColor,
+                  color: restaurant.restaurantType == 'popular'
+                      ? Theme.of(context).textTheme.bodyLarge!.color
+                      : Theme.of(context).disabledColor,
                 ),
               ),
             ),
           ];
         },
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusSmall)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(Dimensions.radiusSmall)),
         child: Container(
           height: 35,
-          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
+          padding: const EdgeInsets.symmetric(
+              horizontal: Dimensions.paddingSizeSmall),
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-            border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.3)),
+            border: Border.all(
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.3)),
           ),
-          child: Icon(Icons.tune, color: Theme.of(context).primaryColor, size: 20),
+          child:
+              Icon(Icons.tune, color: Theme.of(context).primaryColor, size: 20),
         ),
-        onSelected: (dynamic value) => restaurant.setRestaurantType(value),
+        onSelected: (dynamic value) =>
+            restaurant.setRestaurantType(value, currentRestaurant ?? ""),
       );
     });
   }

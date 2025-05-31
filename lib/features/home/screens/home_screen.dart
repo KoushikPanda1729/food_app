@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:stackfood_multivendor/common/controllers/app_controller.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_button_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/customizable_space_bar_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/menu_drawer_widget.dart';
@@ -57,7 +58,7 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   static Future<void> loadData(bool reload) async {
-    String? restaurant = Get.parameters['restaurant'];
+    String? restaurant = Get.find<AppController>().currentRestaurant;
     debugPrint("Navigated from: $restaurant");
     Get.find<HomeController>().getBannerList(reload);
     Get.find<CategoryController>().getCategoryList(reload);
@@ -79,7 +80,7 @@ class HomeScreen extends StatefulWidget {
     if (Get.find<SplashController>().configModel!.mostReviewedFoods == 1) {
       Get.find<ReviewController>().getReviewedProductList(reload, 'all', false);
     }
-    Get.find<RestaurantController>().getRestaurantList(1, reload);
+    Get.find<RestaurantController>().getRestaurantList(1, reload, restaurant);
     if (Get.find<AuthController>().isLoggedIn()) {
       await Get.find<ProfileController>().getUserInfo();
       Get.find<RestaurantController>()
@@ -106,6 +107,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     _isLogin = Get.find<AuthController>().isLoggedIn();
+    if (Get.parameters['restaurant'] != null) {
+      Get.find<AppController>().currentRestaurant =
+          Get.parameters['restaurant'];
+    }
     HomeScreen.loadData(false).then((value) {
       Get.find<SplashController>().getReferBottomSheetStatus();
 
@@ -179,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     double scrollPoint = 0.0;
-    String? restaurant = Get.parameters['restaurant'];
+    String? restaurant = Get.find<AppController>().currentRestaurant;
     debugPrint("Navigated from in build: $restaurant");
     return GetBuilder<HomeController>(builder: (homeController) {
       return GetBuilder<LocalizationController>(
@@ -208,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 await Get.find<ReviewController>()
                     .getReviewedProductList(true, 'all', false);
                 await Get.find<RestaurantController>()
-                    .getRestaurantList(1, true);
+                    .getRestaurantList(1, true, restaurant);
                 if (Get.find<AuthController>().isLoggedIn()) {
                   await Get.find<ProfileController>().getUserInfo();
                   await Get.find<NotificationController>()

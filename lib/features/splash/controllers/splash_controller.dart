@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:location/location.dart';
 import 'package:stackfood_multivendor/api/api_client.dart';
 import 'package:stackfood_multivendor/common/enums/data_source_enum.dart';
@@ -17,9 +19,6 @@ import 'package:stackfood_multivendor/helper/address_helper.dart';
 import 'package:stackfood_multivendor/helper/maintance_helper.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:stackfood_multivendor/helper/splash_route_helper.dart';
 import 'package:universal_html/html.dart' as html;
 
 class SplashController extends GetxController implements GetxService {

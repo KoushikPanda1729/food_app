@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:stackfood_multivendor/features/category/domain/models/category_model.dart';
 
 class ProductModel {
@@ -9,18 +8,29 @@ class ProductModel {
   int? offset;
   List<Product>? products;
 
-  ProductModel({this.totalSize, this.minPrice, this.maxPrice, this.limit, this.offset, this.products});
+  ProductModel(
+      {this.totalSize,
+      this.minPrice,
+      this.maxPrice,
+      this.limit,
+      this.offset,
+      this.products});
 
   ProductModel.fromJson(Map<String, dynamic> json) {
     totalSize = json['total_size'];
     minPrice = json['min_price']?.toDouble();
     maxPrice = json['max_price']?.toDouble();
     limit = json['limit'].toString();
-    offset = (json['offset'] != null && json['offset'].toString().trim().isNotEmpty) ? int.parse(json['offset'].toString()) : null;
+    offset =
+        (json['offset'] != null && json['offset'].toString().trim().isNotEmpty)
+            ? int.parse(json['offset'].toString())
+            : null;
     if (json['products'] != null) {
       products = [];
       json['products'].forEach((v) {
-        if (v['variations'] == null || v['variations'].isEmpty || v['variations'][0]['values'] != null) {
+        if (v['variations'] == null ||
+            v['variations'].isEmpty ||
+            v['variations'][0]['values'] != null) {
           products!.add(Product.fromJson(v));
         }
       });
@@ -247,7 +257,13 @@ class Variation {
   bool? required;
   List<VariationValue>? variationValues;
 
-  Variation({this.name, this.multiSelect, this.min, this.max, this.required, this.variationValues});
+  Variation(
+      {this.name,
+      this.multiSelect,
+      this.min,
+      this.max,
+      this.required,
+      this.variationValues});
 
   Variation.fromJson(Map<String, dynamic> json) {
     if (json['max'] != null) {
@@ -287,7 +303,13 @@ class VariationValue {
   int? currentStock;
   int? optionId;
 
-  VariationValue({this.level, this.optionPrice, this.isSelected, this.stockType, this.currentStock, this.optionId});
+  VariationValue(
+      {this.level,
+      this.optionPrice,
+      this.isSelected,
+      this.stockType,
+      this.currentStock,
+      this.optionId});
 
   VariationValue.fromJson(Map<String, dynamic> json) {
     level = json['label'];
@@ -330,7 +352,9 @@ class AddOns {
     name = json['name'];
     price = json['price'].toDouble();
     stockType = json['stock_type'];
-    addonStock = json['addon_stock'] != null ? int.parse(json['addon_stock'].toString()) : null;
+    addonStock = json['addon_stock'] != null
+        ? int.parse(json['addon_stock'].toString())
+        : null;
   }
 
   Map<String, dynamic> toJson() {
