@@ -58,6 +58,8 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   static Future<void> loadData(bool reload) async {
+    String? restaurant = Get.parameters['restaurant'];
+    debugPrint("Navigated from: $restaurant");
     Get.find<HomeController>().getBannerList(reload);
     Get.find<CategoryController>().getCategoryList(reload);
     Get.find<CuisineController>().getCuisineList();
@@ -580,7 +582,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       _configModel.popularRestaurant == 1
                                           ? const PopularRestaurantsViewWidget()
                                           : const SizedBox(),
-                                      const ReferBannerViewWidget(),
+                                      // const ReferBannerViewWidget(),
                                       _isLogin
                                           ? const PopularRestaurantsViewWidget(
                                               isRecentlyViewed: true)
@@ -607,16 +609,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             SliverToBoxAdapter(
                                 child: Center(
-                                    child: FooterViewWidget(
-                              child: Padding(
-                                padding: ResponsiveHelper.isDesktop(context)
-                                    ? EdgeInsets.zero
-                                    : const EdgeInsets.only(
-                                        bottom:
-                                            Dimensions.paddingSizeOverLarge),
-                                child: AllRestaurantsWidget(
-                                    scrollController: _scrollController),
-                              ),
+                                    child: Padding(
+                              padding: ResponsiveHelper.isDesktop(context)
+                                  ? EdgeInsets.zero
+                                  : const EdgeInsets.only(
+                                      bottom: Dimensions.paddingSizeOverLarge),
+                              child: AllRestaurantsWidget(
+                                  scrollController: _scrollController),
                             ))),
                             SliverToBoxAdapter(
                               child: Container(
@@ -664,6 +663,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                 ),
+                              ),
+                            ),
+                            const SliverToBoxAdapter(
+                              child: Column(
+                                children: [
+                                  ReferBannerViewWidget(),
+                                  SizedBox(height: Dimensions.paddingSizeLarge),
+                                ],
                               ),
                             ),
                           ],

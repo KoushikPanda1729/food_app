@@ -301,4 +301,12 @@ class Images {
   static const String successAnimationDineIn =
       'assets/image/success_animation.gif';
   static const String reserveTable = 'assets/image/reserve_table.jpg';
+  static const String palatePleasersLogo =
+      'assets/image/palate-pleasers-logo.png';
+  static const String palatePleasersBanner =
+      'assets/image/palate-pleaser-banner.jpg';
+  static const String saltanatLogo = 'assets/image/saltanat-logo.webp';
+  static const String saltanatBanner = 'assets/image/saltanat-banner.jpg';
+  static const String shanghaiBanner = 'assets/image/shanghai-banner.jpg';
+  static const String shanghaiLogo = 'assets/image/shanghai-logo.webp';
 }

@@ -16,6 +16,7 @@ import 'package:stackfood_multivendor/features/checkout/screens/payment_webview_
 import 'package:stackfood_multivendor/features/dine_in/screens/dine_in_restaurant_screen.dart';
 import 'package:stackfood_multivendor/features/favourite/screens/favourite_screen.dart';
 import 'package:stackfood_multivendor/features/home/screens/map_view_screen.dart';
+import 'package:stackfood_multivendor/features/home/screens/reserve_table/reserve_table_screen.dart';
 import 'package:stackfood_multivendor/features/html/enums/html_type.dart';
 import 'package:stackfood_multivendor/features/html/screens/html_viewer_screen.dart';
 import 'package:stackfood_multivendor/features/language/screens/language_screen.dart';
@@ -30,6 +31,8 @@ import 'package:stackfood_multivendor/features/order/screens/order_details_scree
 import 'package:stackfood_multivendor/features/order/screens/order_screen.dart';
 import 'package:stackfood_multivendor/features/order/screens/order_tracking_screen.dart';
 import 'package:stackfood_multivendor/features/order/screens/refund_request_screen.dart';
+import 'package:stackfood_multivendor/features/place_selection/screen/place_selection.dart';
+import 'package:stackfood_multivendor/features/place_selection/screen/plate_pleasers/palate_pleasers.dart';
 import 'package:stackfood_multivendor/features/profile/domain/models/update_user_model.dart';
 import 'package:stackfood_multivendor/features/profile/screens/profile_screen.dart';
 import 'package:stackfood_multivendor/features/profile/screens/update_profile_screen.dart';
@@ -148,9 +151,12 @@ class RouteHelper {
   static const String dineInRestaurant = '/dine-in-restaurant';
   static const String payRestaurant = '/pay-restaurant';
   static const String reserveTable = '/reserve-table';
+  static const String placeSelection = '/place-selection';
+  static const String bookPalateService = '/book-palate-service';
 
-  static String getInitialRoute({bool fromSplash = false}) =>
-      '$initial?from-splash=$fromSplash';
+  static String getInitialRoute(
+          {bool fromSplash = false, String? restaurant}) =>
+      '$initial?from-splash=$fromSplash&restaurant=$restaurant';
   static String getSplashRoute(
       NotificationBodyModel? body, DeepLinkBody? linkBody) {
     String data = 'null';
@@ -167,6 +173,8 @@ class RouteHelper {
   }
 
   static String getReserveTableRoute() => reserveTable;
+  static String getPlaceServiceRoute() => bookPalateService;
+  static String getPlaceSelectionRoute() => placeSelection;
   static String getLanguageRoute(String page) => '$language?page=$page';
   static String getOnBoardingRoute() => onBoarding;
   static String getSignInRoute(String page) => '$signIn?page=$page';
@@ -396,6 +404,18 @@ class RouteHelper {
   }
 
   static List<GetPage> routes = [
+    GetPage(
+      name: placeSelection,
+      page: () => getRoute(const PlaceSelectionScreen()),
+    ),
+    GetPage(
+      name: reserveTable,
+      page: () => getRoute(const ReserveTableScreen()),
+    ),
+    GetPage(
+      name: bookPalateService,
+      page: () => getRoute(const PlatePleasersPage()),
+    ),
     GetPage(
         name: initial,
         page: () => getRoute(DashboardScreen(

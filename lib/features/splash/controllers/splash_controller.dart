@@ -96,37 +96,55 @@ class SplashController extends GetxController implements GetxService {
   //   }
   // }
 
-  Future<void> getConfigData({bool handleMaintenanceMode = false, DataSourceEnum source = DataSourceEnum.local, NotificationBodyModel? notificationBody, bool fromMainFunction = false, bool fromDemoReset = false}) async {
+  Future<void> getConfigData(
+      {bool handleMaintenanceMode = false,
+      DataSourceEnum source = DataSourceEnum.local,
+      NotificationBodyModel? notificationBody,
+      bool fromMainFunction = false,
+      bool fromDemoReset = false}) async {
     _hasConnection = true;
     _savedCookiesData = getCookiesData();
     Response response;
-    if(source == DataSourceEnum.local) {
-      response = await splashServiceInterface.getConfigData(source: DataSourceEnum.local);
-      _handleConfigResponse(response, handleMaintenanceMode, fromMainFunction, fromDemoReset, notificationBody: notificationBody, linkBody: null);
-      getConfigData(handleMaintenanceMode: handleMaintenanceMode, source: DataSourceEnum.client);
+    if (source == DataSourceEnum.local) {
+      response = await splashServiceInterface.getConfigData(
+          source: DataSourceEnum.local);
+      _handleConfigResponse(
+          response, handleMaintenanceMode, fromMainFunction, fromDemoReset,
+          notificationBody: notificationBody, linkBody: null);
+      getConfigData(
+          handleMaintenanceMode: handleMaintenanceMode,
+          source: DataSourceEnum.client);
     } else {
-      response = await splashServiceInterface.getConfigData(source: DataSourceEnum.client);
-      _handleConfigResponse(response, handleMaintenanceMode, fromMainFunction, fromDemoReset, notificationBody: notificationBody, linkBody: null);
+      response = await splashServiceInterface.getConfigData(
+          source: DataSourceEnum.client);
+      _handleConfigResponse(
+          response, handleMaintenanceMode, fromMainFunction, fromDemoReset,
+          notificationBody: notificationBody, linkBody: null);
     }
-
   }
 
-  void _handleConfigResponse(Response response, bool handleMaintenanceMode, bool fromMainFunction, bool fromDemoReset, {required NotificationBodyModel? notificationBody, required DeepLinkBody? linkBody}) {
+  void _handleConfigResponse(Response response, bool handleMaintenanceMode,
+      bool fromMainFunction, bool fromDemoReset,
+      {required NotificationBodyModel? notificationBody,
+      required DeepLinkBody? linkBody}) {
     print('=====ss=s=response : ${response.statusText}');
-    if(response.statusCode == 200) {
+    if (response.statusCode == 200) {
       _configModel = splashServiceInterface.prepareConfigData(response);
-      if(_configModel != null) {
-        if(!GetPlatform.isWeb){
+      if (_configModel != null) {
+        if (!GetPlatform.isWeb) {
           bool isMaintenanceMode = _configModel!.maintenanceMode!;
           bool isInMaintenance = MaintenanceHelper.isMaintenanceEnable();
 
           if (isInMaintenance && handleMaintenanceMode) {
             Get.offNamed(RouteHelper.getUpdateRoute(false));
-          } else if (handleMaintenanceMode && ((Get.currentRoute.contains(RouteHelper.update) && !isMaintenanceMode) || !isInMaintenance)) {
+          } else if (handleMaintenanceMode &&
+              ((Get.currentRoute.contains(RouteHelper.update) &&
+                      !isMaintenanceMode) ||
+                  !isInMaintenance)) {
             Get.offNamed(RouteHelper.getInitialRoute());
           }
         }
-        if(fromMainFunction) {
+        if (fromMainFunction) {
           _mainConfigRouting();
         } else if (fromDemoReset) {
           Get.offAllNamed(RouteHelper.getInitialRoute(fromSplash: true));
@@ -136,7 +154,7 @@ class SplashController extends GetxController implements GetxService {
         _onRemoveLoader();
       }
     } else {
-      if(response.statusText == ApiClient.noInternetMessage) {
+      if (response.statusText == ApiClient.noInternetMessage) {
         _hasConnection = false;
       }
     }
@@ -152,7 +170,7 @@ class SplashController extends GetxController implements GetxService {
   }
 
   _mainConfigRouting() async {
-    if(GetPlatform.isWeb) {
+    if (GetPlatform.isWeb) {
       bool isInMaintenance = MaintenanceHelper.isMaintenanceEnable();
 
       if (isInMaintenance) {
@@ -205,71 +223,94 @@ class SplashController extends GetxController implements GetxService {
     return isSuccess;
   }
 
-  Future<void> navigateToLocationScreen(String page, {bool offNamed = false, bool offAll = false}) async {
+  Future<void> navigateToLocationScreen(String page,
+      {bool offNamed = false, bool offAll = false}) async {
     bool fromSignup = page == RouteHelper.signUp;
     bool fromHome = page == 'home';
-    if(!fromHome && AddressHelper.getAddressFromSharedPref() != null) {
+    if (!fromHome && AddressHelper.getAddressFromSharedPref() != null) {
       Get.dialog(const CustomLoaderWidget(), barrierDismissible: false);
       Get.find<LocationController>().autoNavigate(
-          AddressHelper.getAddressFromSharedPref(), fromSignup, null, false, ResponsiveHelper.isDesktop(Get.context)
-      );
-    }else if(Get.find<AuthController>().isLoggedIn()) {
+          AddressHelper.getAddressFromSharedPref(),
+          fromSignup,
+          null,
+          false,
+          ResponsiveHelper.isDesktop(Get.context));
+    } else if (Get.find<AuthController>().isLoggedIn()) {
       Get.dialog(const CustomLoaderWidget(), barrierDismissible: false);
       await Get.find<AddressController>().getAddressList();
       Get.back();
-      if(Get.find<AddressController>().addressList != null && Get.find<AddressController>().addressList!.isEmpty) {
-        if(ResponsiveHelper.isDesktop(Get.context)) {
-          showGeneralDialog(context: Get.context!, pageBuilder: (_,__,___) {
-            return SizedBox(
-              height: 300, width: 300,
-              child: PickMapDialog(
-                fromSignUp: (page == RouteHelper.signUp), canRoute: false, fromAddAddress: false, route: null,
-                // canTakeCurrentLocation: !AuthHelper.isLoggedIn(),
-              ),
-            );
-          });
+      if (Get.find<AddressController>().addressList != null &&
+          Get.find<AddressController>().addressList!.isEmpty) {
+        if (ResponsiveHelper.isDesktop(Get.context)) {
+          showGeneralDialog(
+              context: Get.context!,
+              pageBuilder: (_, __, ___) {
+                return SizedBox(
+                  height: 300,
+                  width: 300,
+                  child: PickMapDialog(
+                    fromSignUp: (page == RouteHelper.signUp), canRoute: false,
+                    fromAddAddress: false, route: null,
+                    // canTakeCurrentLocation: !AuthHelper.isLoggedIn(),
+                  ),
+                );
+              });
         } else {
           Get.toNamed(RouteHelper.getPickMapRoute(page, false));
         }
-      }else {
-        if(offNamed) {
+      } else {
+        if (offNamed) {
           Get.offNamed(RouteHelper.getAccessLocationRoute(page));
-        }else if(offAll) {
+        } else if (offAll) {
           Get.offAllNamed(RouteHelper.getAccessLocationRoute(page));
-        }else {
+        } else {
           Get.toNamed(RouteHelper.getAccessLocationRoute(page));
         }
       }
-    }else {
-      if(ResponsiveHelper.isDesktop(Get.context)) {
-        showGeneralDialog(context: Get.context!, pageBuilder: (_,__,___) {
-          return SizedBox(
-            height: 300, width: 300,
-            child: PickMapDialog(
-              fromSignUp: (page == RouteHelper.signUp), canRoute: false, fromAddAddress: false, route: null,
-              // canTakeCurrentLocation: !fromHome,
-            ),
-          );
-        });
+    } else {
+      if (ResponsiveHelper.isDesktop(Get.context)) {
+        showGeneralDialog(
+            context: Get.context!,
+            pageBuilder: (_, __, ___) {
+              return SizedBox(
+                height: 300,
+                width: 300,
+                child: PickMapDialog(
+                  fromSignUp: (page == RouteHelper.signUp), canRoute: false,
+                  fromAddAddress: false, route: null,
+                  // canTakeCurrentLocation: !fromHome,
+                ),
+              );
+            });
       } else {
         _checkPermission(page);
       }
     }
   }
 
-  void _checkPermission(String page) async {
+  void route(
+      {NotificationBodyModel? notificationBody, DeepLinkBody? linkBody}) {
+    // Handle any logic with notificationBody or linkBody if needed
 
+    // ✅ Always go to place selection screen after splash
+    Get.offNamed(RouteHelper.getPlaceSelectionRoute());
+  }
+
+  void _checkPermission(String page) async {
     LocationPermission permission = await Geolocator.checkPermission();
 
-    if(permission == LocationPermission.denied) {
+    if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-    if(permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
       Get.toNamed(RouteHelper.getPickMapRoute(page, false));
     } else {
-      if(await _locationCheck()) {
+      if (await _locationCheck()) {
         Get.dialog(const CustomLoaderWidget(), barrierDismissible: false);
-        await Get.find<LocationController>().getCurrentLocation(false).then((value) {
+        await Get.find<LocationController>()
+            .getCurrentLocation(false)
+            .then((value) {
           if (value.latitude != null) {
             _onPickAddressButtonPressed(Get.find<LocationController>(), page);
           }
@@ -294,14 +335,18 @@ class SplashController extends GetxController implements GetxService {
     return serviceEnabled;
   }
 
-  void _onPickAddressButtonPressed(LocationController locationController, String page) {
-    if(locationController.pickPosition.latitude != 0 && locationController.pickAddress!.isNotEmpty) {
+  void _onPickAddressButtonPressed(
+      LocationController locationController, String page) {
+    if (locationController.pickPosition.latitude != 0 &&
+        locationController.pickAddress!.isNotEmpty) {
       AddressModel address = AddressModel(
         latitude: locationController.pickPosition.latitude.toString(),
         longitude: locationController.pickPosition.longitude.toString(),
-        addressType: 'others', address: locationController.pickAddress,
+        addressType: 'others',
+        address: locationController.pickAddress,
       );
-      locationController.saveAddressAndNavigate(address, false, page, false, ResponsiveHelper.isDesktop(Get.context));
+      locationController.saveAddressAndNavigate(
+          address, false, page, false, ResponsiveHelper.isDesktop(Get.context));
     } else {
       showCustomSnackBar('pick_an_address'.tr);
     }
@@ -313,8 +358,7 @@ class SplashController extends GetxController implements GetxService {
     update();
   }
 
-  void getReferBottomSheetStatus(){
+  void getReferBottomSheetStatus() {
     _showReferBottomSheet = splashServiceInterface.getReferBottomSheetStatus();
   }
-
 }
