@@ -103,7 +103,6 @@ class SplashScreenState extends State<SplashScreen> {
                     children: [
                       Image.asset(Images.logo, width: 100),
                       const SizedBox(height: Dimensions.paddingSizeLarge),
-                      Image.asset(Images.logoName, width: 150),
                     ],
                   )
                 : NoInternetScreen(

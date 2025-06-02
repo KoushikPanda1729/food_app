@@ -36,6 +36,8 @@ class PlaceSelectionScreen extends StatelessWidget {
               ),
               SizedBox(height: 20),
               RestaurantCard(
+                logoHeight: 60,
+                logoWidth: 100,
                 gradientColors: [Color(0xFFB62424), Color(0xFFDD5E5E)],
                 logoPath: Images.shanghaiLogo,
                 title:
@@ -49,6 +51,8 @@ class PlaceSelectionScreen extends StatelessWidget {
               ),
               SizedBox(height: 16),
               RestaurantCard(
+                logoHeight: 50,
+                logoWidth: 50,
                 gradientColors: [Color(0xFF0F4613), Color(0xFF1F6A29)],
                 logoPath: Images.saltanatLogo,
                 title:
@@ -62,6 +66,8 @@ class PlaceSelectionScreen extends StatelessWidget {
               ),
               SizedBox(height: 16),
               RestaurantCard(
+                logoHeight: 50,
+                logoWidth: 50,
                 gradientColors: [Color(0xFF5C3A1D), Color(0xFF8B5E3C)],
                 logoPath: Images.palatePleasersLogo,
                 title:
@@ -87,6 +93,8 @@ class RestaurantCard extends StatelessWidget {
   final String restaurantTagline;
   final String foodImagePath;
   final VoidCallback onTap;
+  final double logoWidth;
+  final double logoHeight;
 
   const RestaurantCard({
     super.key,
@@ -96,6 +104,8 @@ class RestaurantCard extends StatelessWidget {
     required this.restaurantTagline,
     required this.foodImagePath,
     required this.onTap,
+    required this.logoWidth,
+    required this.logoHeight,
   });
 
   @override
@@ -149,8 +159,8 @@ class RestaurantCard extends StatelessWidget {
                 children: [
                   // Top section with logo
                   SizedBox(
-                    height: 50,
-                    width: 50,
+                    width: logoWidth,
+                    height: logoHeight,
                     child: Image.asset(
                       logoPath,
                       fit: BoxFit.contain,

@@ -3,23 +3,23 @@ import 'package:flutter/material.dart';
 
 ThemeData light = ThemeData(
   fontFamily: AppConstants.fontFamily,
-  primaryColor: const Color(0xFFFF7918),
-  secondaryHeaderColor: const Color(0x9BFF7918),
+  primaryColor: const Color(0xFFE34234),
+  secondaryHeaderColor: const Color(0xFFFFCA12),
   disabledColor: const Color(0xFF9B9B9B),
   brightness: Brightness.light,
   hintColor: const Color(0xFF5E6472),
   cardColor: Colors.white,
   shadowColor: Colors.black.withValues(alpha: 0.03),
   textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: const Color(0xFFFF7918))),
+      style: TextButton.styleFrom(foregroundColor: const Color(0xFFE34234))),
   colorScheme: const ColorScheme.light(
-          primary: Color(0xFFFF7918),
-          tertiary: Color(0xff102F9C),
-          tertiaryContainer: Color(0xff8195DB),
-          secondary: Color(0xFFFF7918))
+          primary: Color(0xFFE34234),
+          tertiary: Color(0xff6165D7),
+          tertiaryContainer: Color(0xff171DB6),
+          secondary: Color(0xFFFFCA12))
       .copyWith(surface: const Color(0xFFF5F6F8))
       .copyWith(
-        error: const Color(0xFFE84D4F),
+        error: const Color(0xFFFFCA12),
       ),
   popupMenuTheme: const PopupMenuThemeData(
       color: Colors.white, surfaceTintColor: Colors.white),

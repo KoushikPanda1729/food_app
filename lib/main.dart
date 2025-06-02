@@ -37,41 +37,32 @@ Future<void> main() async {
   if (ResponsiveHelper.isMobilePhone()) {
     HttpOverrides.global = MyHttpOverrides();
   }
+
   setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
 
-  // // Pass all uncaught "fatal" errors from the framework to Crashlytics
-  // FlutterError.onError = (errorDetails) {
-  //   FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-  // };
-  // // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
-  // PlatformDispatcher.instance.onError = (error, stack) {
-  //   FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-  //   return true;
-  // };
-
   DeepLinkBody? linkBody;
 
-  if (GetPlatform.isWeb) {
+  // ✅ Initialize Firebase with safe error handling
+  try {
     await Firebase.initializeApp(
-        options: const FirebaseOptions(
-      apiKey: 'AIzaSyCc3OCd5I2xSlnftZ4bFAbuCzMhgQHLivA',
-      appId: '1:491987943015:android:fe79b69339834d5c8f1ec2',
-      messagingSenderId: '491987943015',
-      projectId: 'stackmart-500c7',
-    ));
-    MetaSEO().config();
-  } else if (GetPlatform.isAndroid) {
-    await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: 'AIzaSyCc3OCd5I2xSlnftZ4bFAbuCzMhgQHLivA',
-        appId: '1:491987943015:android:fe79b69339834d5c8f1ec2',
-        messagingSenderId: '491987943015',
-        projectId: 'stackmart-500c7',
-      ),
+      options: (GetPlatform.isWeb || GetPlatform.isAndroid)
+          ? const FirebaseOptions(
+              apiKey: 'AIzaSyCeaw_gVN0iQwFHyuF8pQ6PbVDmSVQw8AY',
+              appId: '1:1049699819506:web:a4b5e3bedc729aab89956b',
+              messagingSenderId: '1049699819506',
+              projectId: 'stackfood-bd3ee',
+            )
+          : null, // iOS uses default firebase setup
     );
-  } else {
-    await Firebase.initializeApp();
+  } on FirebaseException catch (e) {
+    if (e.code != 'duplicate-app') {
+      rethrow;
+    }
+  }
+
+  if (GetPlatform.isWeb) {
+    MetaSEO().config();
   }
 
   Map<String, Map<String, String>> languages = await di.init();
@@ -97,7 +88,7 @@ Future<void> main() async {
       version: "v13.0",
     );
   }
-  // Get.put(AppController(), permanent: true);
+
   runApp(MyApp(languages: languages, body: body, linkBody: linkBody));
 }
 
@@ -105,11 +96,13 @@ class MyApp extends StatefulWidget {
   final Map<String, Map<String, String>>? languages;
   final NotificationBodyModel? body;
   final DeepLinkBody? linkBody;
-  const MyApp(
-      {super.key,
-      required this.languages,
-      required this.body,
-      required this.linkBody});
+
+  const MyApp({
+    super.key,
+    required this.languages,
+    required this.body,
+    required this.linkBody,
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -119,7 +112,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-
     _route();
   }
 
@@ -127,8 +119,7 @@ class _MyAppState extends State<MyApp> {
     if (GetPlatform.isWeb) {
       Get.find<SplashController>().initSharedData();
       if (!Get.find<AuthController>().isLoggedIn() &&
-          !Get.find<AuthController>()
-              .isGuestLoggedIn() /*&& !ResponsiveHelper.isDesktop(Get.context!)*/) {
+          !Get.find<AuthController>().isGuestLoggedIn()) {
         await Get.find<AuthController>().guestLogin();
       }
       if (Get.find<AuthController>().isLoggedIn() ||
@@ -158,19 +149,22 @@ class _MyAppState extends State<MyApp> {
                   scrollBehavior: const MaterialScrollBehavior().copyWith(
                     dragDevices: {
                       PointerDeviceKind.mouse,
-                      PointerDeviceKind.touch
+                      PointerDeviceKind.touch,
                     },
                   ),
                   theme: themeController.darkTheme ? dark : light,
                   locale: localizeController.locale,
                   translations: Messages(languages: widget.languages),
                   fallbackLocale: Locale(
-                      AppConstants.languages[0].languageCode!,
-                      AppConstants.languages[0].countryCode),
+                    AppConstants.languages[0].languageCode!,
+                    AppConstants.languages[0].countryCode,
+                  ),
                   initialRoute: GetPlatform.isWeb
                       ? RouteHelper.getInitialRoute()
                       : RouteHelper.getSplashRoute(
-                          widget.body, widget.linkBody),
+                          widget.body,
+                          widget.linkBody,
+                        ),
                   getPages: RouteHelper.routes,
                   defaultTransition: Transition.topLevel,
                   transitionDuration: const Duration(milliseconds: 500),
@@ -179,26 +173,34 @@ class _MyAppState extends State<MyApp> {
                       data: MediaQuery.of(context)
                           .copyWith(textScaler: const TextScaler.linear(1)),
                       child: Material(
-                          child: Stack(children: [
-                        widget!,
-                        GetBuilder<SplashController>(
-                            builder: (splashController) {
-                          if (!splashController.savedCookiesData ||
-                              !splashController.getAcceptCookiesStatus(
-                                  splashController.configModel?.cookiesText ??
-                                      "")) {
-                            return ResponsiveHelper.isWeb()
-                                ? const Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: CookiesViewWidget())
-                                : const SizedBox();
-                          } else {
-                            return const SizedBox();
-                          }
-                        })
-                      ])),
+                        child: Stack(
+                          children: [
+                            widget!,
+                            GetBuilder<SplashController>(
+                              builder: (splashController) {
+                                if (!splashController.savedCookiesData ||
+                                    !splashController.getAcceptCookiesStatus(
+                                      splashController
+                                              .configModel?.cookiesText ??
+                                          "",
+                                    )) {
+                                  return ResponsiveHelper.isWeb()
+                                      ? const Align(
+                                          alignment: Alignment.bottomCenter,
+                                          child: CookiesViewWidget(),
+                                        )
+                                      : const SizedBox();
+                                } else {
+                                  return const SizedBox();
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
                     );
-                  });
+                  },
+                );
         });
       });
     });

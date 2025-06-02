@@ -3,15 +3,15 @@ import 'package:stackfood_multivendor/util/images.dart';
 import 'package:get/get.dart';
 
 class AppConstants {
-  static const String appName = 'StackFood';
-  static const double appVersion = 8.1;
+  static const String appName = 'Shanghai & Saltanat';
+  static const double appVersion = 7.5;
 
   static const String fontFamily = 'Roboto';
   static const bool payInWevView = false;
-  static const String webHostedUrl = 'http://6am.one/stackfood/andreal';
+  static const String webHostedUrl = 'https://shanghai.net.in';
   static const bool useReactWebsite = false;
 
-  static const String baseUrl = 'http://6am.one/stackfood/andreal';
+  static const String baseUrl = 'https://order.shanghai.net.in';
   static const String categoryUri = '/api/v1/categories';
   static const String bannerUri = '/api/v1/banners';
   static const String restaurantProductUri = '/api/v1/products/latest';
@@ -206,8 +206,8 @@ class AppConstants {
   static List<String?> preferenceDays = ['today', 'tomorrow'];
 
   /// Deep Links
-  static const String yourScheme = 'StackFood';
-  static const String yourHost = 'stackfood.com';
+  static const String yourScheme = 'Shanghai & Saltanat';
+  static const String yourHost = 'https://shanghai.net.in';
 
   /// Languages
   static List<LanguageModel> languages = [
