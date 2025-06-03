@@ -57,14 +57,15 @@ import 'package:stackfood_multivendor/util/styles.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  // We no longer need to pass a “restaurant” string here; controller already has it.
   static Future<void> loadData(bool reload) async {
-    String? restaurant = Get.find<AppController>().currentRestaurant;
-    debugPrint("Navigated from: $restaurant");
     Get.find<HomeController>().getBannerList(reload);
     Get.find<CategoryController>().getCategoryList(reload);
     Get.find<CuisineController>().getCuisineList();
     Get.find<AdvertisementController>().getAdvertisementList();
     Get.find<DineInController>().getDineInRestaurantList(1, reload);
+
+    // Popular / Latest / Most Reviewed can remain unchanged — they don’t use the filterName.
     if (Get.find<SplashController>().configModel!.popularRestaurant == 1) {
       Get.find<RestaurantController>()
           .getPopularRestaurantList(reload, 'all', false);
@@ -80,7 +81,10 @@ class HomeScreen extends StatefulWidget {
     if (Get.find<SplashController>().configModel!.mostReviewedFoods == 1) {
       Get.find<ReviewController>().getReviewedProductList(reload, 'all', false);
     }
-    Get.find<RestaurantController>().getRestaurantList(1, reload, restaurant);
+
+    // *** This one now only takes (offset, reload) ***
+    Get.find<RestaurantController>().getRestaurantList(1, reload);
+
     if (Get.find<AuthController>().isLoggedIn()) {
       await Get.find<ProfileController>().getUserInfo();
       Get.find<RestaurantController>()
@@ -107,13 +111,21 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     _isLogin = Get.find<AuthController>().isLoggedIn();
-    if (Get.parameters['restaurant'] != null) {
-      Get.find<AppController>().currentRestaurant =
-          Get.parameters['restaurant'];
-    }
-    HomeScreen.loadData(false).then((value) {
-      Get.find<SplashController>().getReferBottomSheetStatus();
 
+    // ─── 1) Read the “restaurant” route parameter exactly once ─────────────────
+    final routeFilter = Get.parameters['restaurant'];
+    if (routeFilter != null) {
+      // a) Save it in AppController (if needed elsewhere)
+      Get.find<AppController>().currentRestaurant = routeFilter;
+      // b) Push it into RestaurantController so every fetch uses it
+      Get.find<RestaurantController>().setFilterName(routeFilter);
+      debugPrint("🍴 filterName set to: $routeFilter");
+    }
+    // ────────────────────────────────────────────────────────────────────────────
+
+    // 2) Load initial data
+    HomeScreen.loadData(false).then((_) {
+      Get.find<SplashController>().getReferBottomSheetStatus();
       if ((Get.find<ProfileController>().userInfoModel?.isValidForDiscount ??
               false) &&
           Get.find<SplashController>().showReferBottomSheet) {
@@ -122,6 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
 
+    // 3) Listen to scroll for fade-in/out of favorite button
     _scrollController.addListener(() {
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.reverse) {
@@ -184,8 +197,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     double scrollPoint = 0.0;
-    String? restaurant = Get.find<AppController>().currentRestaurant;
-    debugPrint("Navigated from in build: $restaurant");
+    // We no longer read `appController.currentRestaurant` on every build;
+    // controller already knows it from initState.
     return GetBuilder<HomeController>(builder: (homeController) {
       return GetBuilder<LocalizationController>(
           builder: (localizationController) {
@@ -212,8 +225,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     .getLatestRestaurantList(true, 'all', false);
                 await Get.find<ReviewController>()
                     .getReviewedProductList(true, 'all', false);
+                // Only one call needed—controller already has filterName
                 await Get.find<RestaurantController>()
-                    .getRestaurantList(1, true, restaurant);
+                    .getRestaurantList(1, true);
                 if (Get.find<AuthController>().isLoggedIn()) {
                   await Get.find<ProfileController>().getUserInfo();
                   await Get.find<NotificationController>()
@@ -236,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           controller: _scrollController,
                           physics: const AlwaysScrollableScrollPhysics(),
                           slivers: [
-                            /// App Bar
+                            // App Bar
                             SliverAppBar(
                               pinned: true,
                               toolbarHeight: 10,
@@ -247,7 +261,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       : 50,
                               floating: false,
                               elevation: 0,
-                              /*automaticallyImplyLeading: false,*/
                               backgroundColor:
                                   ResponsiveHelper.isDesktop(context)
                                       ? Colors.transparent
@@ -336,7 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                       .cardColor,
                                                                   fontSize:
                                                                       Dimensions
-                                                                          .fontSizeDefault /* - (scrollingRate * Dimensions.fontSizeDefault)*/,
+                                                                          .fontSizeDefault,
                                                                 ),
                                                                 maxLines: 1,
                                                                 overflow:
@@ -375,7 +388,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         color: Theme.of(context)
                                                                             .cardColor,
                                                                         fontSize:
-                                                                            Dimensions.fontSizeSmall /* - (scrollingRate * Dimensions.fontSizeSmall)*/,
+                                                                            Dimensions.fontSizeSmall,
                                                                       ),
                                                                       maxLines:
                                                                           1,
@@ -390,8 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     color: Theme.of(
                                                                             context)
                                                                         .cardColor,
-                                                                    size:
-                                                                        16 /*- (scrollingRate * 16)*/,
+                                                                    size: 16,
                                                                   ),
                                                                 ],
                                                               ),
@@ -413,8 +425,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     decoration: BoxDecoration(
                                                       color: Theme.of(context)
                                                           .cardColor
-                                                          .withValues(
-                                                              alpha: 0.9),
+                                                          .withOpacity(0.9),
                                                       borderRadius: BorderRadius
                                                           .circular(Dimensions
                                                               .radiusDefault),
@@ -527,7 +538,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               boxShadow: [
                                                 BoxShadow(
                                                     color: Colors.grey
-                                                        .withValues(alpha: 0.1),
+                                                        .withOpacity(0.1),
                                                     spreadRadius: 1,
                                                     blurRadius: 10,
                                                     offset: const Offset(0, 1))
@@ -548,8 +559,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             .fontSizeSmall,
                                                         color: Theme.of(context)
                                                             .primaryColor
-                                                            .withValues(
-                                                                alpha: 0.6),
+                                                            .withOpacity(0.6),
                                                       ))),
                                             ]),
                                           ),
@@ -569,9 +579,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: [
                                       const BannerViewWidget(),
                                       const BadWeatherWidget(),
-                                      const WhatOnYourMindViewWidget(),
+                                      // const WhatOnYourMindViewWidget(),
                                       const TodayTrendsViewWidget(),
-                                      // const LocationBannerViewWidget(),
+                                      const LocationBannerViewWidget(),
                                       const HighlightWidgetView(),
                                       _isLogin
                                           ? const OrderAgainViewWidget()
@@ -583,23 +593,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                       _configModel.dineInOrderOption!
                                           ? DineInWidget()
                                           : const SizedBox(),
-                                      // const CuisineViewWidget(),
-                                      _configModel.popularRestaurant == 1
-                                          ? const PopularRestaurantsViewWidget()
-                                          : const SizedBox(),
-                                      // const ReferBannerViewWidget(),
-                                      _isLogin
-                                          ? const PopularRestaurantsViewWidget(
-                                              isRecentlyViewed: true)
-                                          : const SizedBox(),
-                                      _configModel.popularFood == 1
-                                          ? const PopularFoodNearbyViewWidget()
-                                          : const SizedBox(),
+                                      // … any other widgets …
                                       _configModel.newRestaurant == 1
                                           ? const NewOnStackFoodViewWidget(
                                               isLatest: true)
                                           : const SizedBox(),
-                                      const PromotionalBannerViewWidget(),
                                     ]),
                               )),
                             ),
@@ -622,6 +620,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: AllRestaurantsWidget(
                                   scrollController: _scrollController),
                             ))),
+
                             SliverToBoxAdapter(
                               child: Container(
                                 margin: const EdgeInsets.only(
@@ -645,14 +644,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
                                       children: [
-                                        // Image at the top of card
                                         Image.asset(
                                           Images.reserveTable,
                                           height: 180,
                                           fit: BoxFit.cover,
                                         ),
-
-                                        // Button at the bottom
                                         Container(
                                           padding: const EdgeInsets.fromLTRB(
                                               16, 8, 16, 16),
@@ -704,8 +700,8 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class SliverDelegate extends SliverPersistentHeaderDelegate {
-  Widget child;
-  double height;
+  final Widget child;
+  final double height;
 
   SliverDelegate({required this.child, this.height = 50});
 

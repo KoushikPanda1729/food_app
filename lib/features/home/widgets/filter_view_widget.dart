@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:stackfood_multivendor/common/controllers/app_controller.dart';
 import 'package:stackfood_multivendor/features/restaurant/controllers/restaurant_controller.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -10,7 +9,6 @@ class FilterViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? currentRestaurant = Get.find<AppController>().currentRestaurant;
     return GetBuilder<RestaurantController>(builder: (restaurant) {
       return PopupMenuButton(
         itemBuilder: (context) {
@@ -98,8 +96,8 @@ class FilterViewWidget extends StatelessWidget {
           child:
               Icon(Icons.tune, color: Theme.of(context).primaryColor, size: 20),
         ),
-        onSelected: (dynamic value) =>
-            restaurant.setRestaurantType(value, currentRestaurant ?? ""),
+        // onSelected: (dynamic value) =>
+        //     restaurant.setRestaurantType(value, currentRestaurant ?? ""),
       );
     });
   }

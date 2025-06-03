@@ -16,7 +16,7 @@ class AllRestaurantsWidget extends StatelessWidget {
         totalSize: restaurantController.restaurantModel?.totalSize,
         offset: restaurantController.restaurantModel?.offset,
         onPaginate: (int? offset) async =>
-            await restaurantController.getRestaurantList(offset!, false, ""),
+            await restaurantController.getRestaurantList(offset!, false),
         productView: RestaurantsViewWidget(
             restaurants: restaurantController.restaurantModel?.restaurants),
       );

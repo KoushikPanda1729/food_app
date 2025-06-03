@@ -38,7 +38,7 @@ class AllRestaurantFilterWidget extends StatelessWidget {
                           ),
                         ]),
                     const Expanded(child: SizedBox()),
-                    filter(context, restaurantController),
+                    // filter(context, restaurantController),
                     const SizedBox(width: Dimensions.paddingSizeSmall),
                   ],
                 ))
@@ -68,8 +68,8 @@ class AllRestaurantFilterWidget extends StatelessWidget {
                         ),
                       ]),
                   const SizedBox(height: Dimensions.paddingSizeDefault),
-                  filter(context, restaurantController),
-                  const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                  // filter(context, restaurantController),
+                  // const SizedBox(height: Dimensions.paddingSizeExtraSmall),
                   Divider(),
                 ]),
               ),
@@ -77,51 +77,51 @@ class AllRestaurantFilterWidget extends StatelessWidget {
     });
   }
 
-  Widget filter(
-      BuildContext context, RestaurantController restaurantController) {
-    return SizedBox(
-      height: ResponsiveHelper.isDesktop(context) ? 40 : 30,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        shrinkWrap: true,
-        children: [
-          ResponsiveHelper.isDesktop(context)
-              ? const SizedBox()
-              : const FilterViewWidget(),
-          const SizedBox(width: Dimensions.paddingSizeSmall),
-          RestaurantsFilterButtonWidget(
-            buttonText: 'top_rated'.tr,
-            onTap: (String? restaurant) =>
-                restaurantController.setTopRated(restaurant ?? ""),
-            isSelected: restaurantController.topRated == 1,
-          ),
-          const SizedBox(width: Dimensions.paddingSizeSmall),
-          RestaurantsFilterButtonWidget(
-            buttonText: 'discounted'.tr,
-            onTap: (String? restaurant) =>
-                restaurantController.setDiscount(restaurant ?? ""),
-            isSelected: restaurantController.discount == 1,
-          ),
-          const SizedBox(width: Dimensions.paddingSizeSmall),
-          RestaurantsFilterButtonWidget(
-            buttonText: 'veg'.tr,
-            onTap: (String? restaurant) =>
-                restaurantController.setVeg(restaurant ?? ""),
-            isSelected: restaurantController.veg == 1,
-          ),
-          const SizedBox(width: Dimensions.paddingSizeSmall),
-          RestaurantsFilterButtonWidget(
-            buttonText: 'non_veg'.tr,
-            onTap: (String? restaurant) =>
-                restaurantController.setNonVeg(restaurant ?? ""),
-            isSelected: restaurantController.nonVeg == 1,
-          ),
-          const SizedBox(width: Dimensions.paddingSizeSmall),
-          ResponsiveHelper.isDesktop(context)
-              ? const FilterViewWidget()
-              : const SizedBox(),
-        ],
-      ),
-    );
-  }
+  // Widget filter(
+  //     BuildContext context, RestaurantController restaurantController) {
+  //   return SizedBox(
+  //     height: ResponsiveHelper.isDesktop(context) ? 40 : 30,
+  //     child: ListView(
+  //       scrollDirection: Axis.horizontal,
+  //       shrinkWrap: true,
+  //       children: [
+  //         ResponsiveHelper.isDesktop(context)
+  //             ? const SizedBox()
+  //             : const FilterViewWidget(),
+  //         const SizedBox(width: Dimensions.paddingSizeSmall),
+  //         RestaurantsFilterButtonWidget(
+  //           buttonText: 'top_rated'.tr,
+  //           onTap: (String? restaurant) =>
+  //               restaurantController.setTopRated(restaurant ?? ""),
+  //           isSelected: restaurantController.topRated == 1,
+  //         ),
+  //         const SizedBox(width: Dimensions.paddingSizeSmall),
+  //         RestaurantsFilterButtonWidget(
+  //           buttonText: 'discounted'.tr,
+  //           onTap: (String? restaurant) =>
+  //               restaurantController.setDiscount(restaurant ?? ""),
+  //           isSelected: restaurantController.discount == 1,
+  //         ),
+  //         const SizedBox(width: Dimensions.paddingSizeSmall),
+  //         RestaurantsFilterButtonWidget(
+  //           buttonText: 'veg'.tr,
+  //           onTap: (String? restaurant) =>
+  //               restaurantController.setVeg(restaurant ?? ""),
+  //           isSelected: restaurantController.veg == 1,
+  //         ),
+  //         const SizedBox(width: Dimensions.paddingSizeSmall),
+  //         RestaurantsFilterButtonWidget(
+  //           buttonText: 'non_veg'.tr,
+  //           onTap: (String? restaurant) =>
+  //               restaurantController.setNonVeg(restaurant ?? ""),
+  //           isSelected: restaurantController.nonVeg == 1,
+  //         ),
+  //         const SizedBox(width: Dimensions.paddingSizeSmall),
+  //         ResponsiveHelper.isDesktop(context)
+  //             ? const FilterViewWidget()
+  //             : const SizedBox(),
+  //       ],
+  //     ),
+  //   );
+  // }
 }

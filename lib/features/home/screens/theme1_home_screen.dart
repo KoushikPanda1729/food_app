@@ -237,7 +237,7 @@ class Theme1HomeScreen extends StatelessWidget {
                     style: robotoMedium.copyWith(
                         fontSize: Dimensions.fontSizeLarge),
                   )),
-                  const FilterViewWidget(),
+                  // const FilterViewWidget(),
                 ]),
               ),
               GetBuilder<RestaurantController>(builder: (restaurantController) {
@@ -245,8 +245,11 @@ class Theme1HomeScreen extends StatelessWidget {
                   scrollController: scrollController,
                   totalSize: restaurantController.restaurantModel?.totalSize,
                   offset: restaurantController.restaurantModel?.offset,
-                  onPaginate: (int? offset) async => await restaurantController
-                      .getRestaurantList(offset!, false, ""),
+                  onPaginate: (int? offset) async =>
+                      await restaurantController.getRestaurantList(
+                    offset!,
+                    false,
+                  ),
                   productView: ProductViewWidget(
                     isRestaurant: true,
                     products: null,

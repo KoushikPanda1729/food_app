@@ -57,7 +57,7 @@ class _MapViewScreenState extends State<MapViewScreen> {
       Get.find<DineInController>().getDineInRestaurantList(1, false);
     } else {
       Get.find<RestaurantController>()
-          .getRestaurantList(1, false, "", fromMap: true);
+          .getRestaurantList(1, false, fromMap: true);
     }
     Get.find<RestaurantController>()
         .setNearestRestaurantIndex(-1, notify: false);
