@@ -115,7 +115,7 @@ class SignInScreenState extends State<SignInScreen> {
                         ),
                       )
                     : const SizedBox(),
-                Image.asset(Images.logo, height: 40, width: 40),
+                Image.asset(Images.logo, width: 60),
                 const SizedBox(height: Dimensions.paddingSizeOverLarge),
                 SignInView(
                   exitFromApp: widget.exitFromApp,

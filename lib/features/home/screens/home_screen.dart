@@ -571,7 +571,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       const BadWeatherWidget(),
                                       const WhatOnYourMindViewWidget(),
                                       const TodayTrendsViewWidget(),
-                                      const LocationBannerViewWidget(),
+                                      // const LocationBannerViewWidget(),
                                       const HighlightWidgetView(),
                                       _isLogin
                                           ? const OrderAgainViewWidget()
@@ -583,7 +583,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       _configModel.dineInOrderOption!
                                           ? DineInWidget()
                                           : const SizedBox(),
-                                      const CuisineViewWidget(),
+                                      // const CuisineViewWidget(),
                                       _configModel.popularRestaurant == 1
                                           ? const PopularRestaurantsViewWidget()
                                           : const SizedBox(),
