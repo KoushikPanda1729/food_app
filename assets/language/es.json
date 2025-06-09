@@ -1277,5 +1277,6 @@
   "packaging_charge_for": "Cargo de embalaje por",
   "packaging_charge": "Cargo de embalaje",
   "shanghai_payment_transactions": "Transacciones de pago de Shanghai",
-  "via": "vía"
+  "via": "vía",
+  "max_wallet_usage" : "Maximum Wallet Usage"
 }

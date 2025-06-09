@@ -1277,5 +1277,6 @@
   "packaging_charge_for": "প্যাকেজিং চার্জ",
   "packaging_charge": "প্যাকেজিং চার্জ",
   "shanghai_payment_transactions": "শাংহাই পেমেন্ট লেনদেন",
-  "via": "দিয়ে"
+  "via": "দিয়ে",
+  "max_wallet_usage" : "Maximum Wallet Usage"
 }

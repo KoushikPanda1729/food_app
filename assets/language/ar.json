@@ -1277,5 +1277,6 @@
   "packaging_charge_for": "رسوم التعبئة والتغليف ل",
   "packaging_charge": "رسوم التعبئة والتغليف",
   "shanghai_payment_transactions": "معاملات الدفع في شنغهاي",
-  "via": "عبر"
+  "via": "عبر",
+  "max_wallet_usage" : "Maximum Wallet Usage"
 }

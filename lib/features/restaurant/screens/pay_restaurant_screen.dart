@@ -52,6 +52,19 @@ class _PayRestaurantScreenState extends State<PayRestaurantScreen> {
     total = total - (total * discountPercent / 100);
   }
 
+  // Calculate the maximum wallet amount that can be applied (5% of total price)
+  double getMaxWalletAmount() {
+    return total * 0.05; // 5% of total amount
+  }
+
+  // Calculate the actual wallet amount to be applied
+  double getApplicableWalletAmount() {
+    double maxAllowedAmount = getMaxWalletAmount();
+    
+    // Return the minimum of wallet balance and 5% of total amount
+    return walletBalance > maxAllowedAmount ? maxAllowedAmount : walletBalance;
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isLoggedIn = Get.find<AuthController>().isLoggedIn();
@@ -61,6 +74,9 @@ class _PayRestaurantScreenState extends State<PayRestaurantScreen> {
           ? SingleChildScrollView(
               child:
                   GetBuilder<CheckoutController>(builder: (checkoutController) {
+                // Calculate applicable wallet amount based on current total
+                double applicableWalletAmount = getApplicableWalletAmount();
+                
                 return Padding(
                   padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                   child: Column(children: [
@@ -179,6 +195,7 @@ class _PayRestaurantScreenState extends State<PayRestaurantScreen> {
                                           isWalletActive: true,
                                           totalPrice: total,
                                           isOfflinePaymentActive: false,
+                                          isFromRestaurantPay: true,
                                         )));
                                   } else {
                                     showModalBottomSheet(
@@ -192,6 +209,7 @@ class _PayRestaurantScreenState extends State<PayRestaurantScreen> {
                                         isWalletActive: true,
                                         totalPrice: total,
                                         isOfflinePaymentActive: false,
+                                        isFromRestaurantPay: true,
                                       ),
                                     );
                                   }
@@ -258,7 +276,7 @@ class _PayRestaurantScreenState extends State<PayRestaurantScreen> {
                                                         .fontSizeSmall)),
                                             Text(
                                               PriceConverter.convertPrice(
-                                                  walletBalance),
+                                                  applicableWalletAmount), // Use applicable amount instead of full wallet balance
                                               textDirection: TextDirection.ltr,
                                               style: robotoMedium.copyWith(
                                                   fontSize:
@@ -308,7 +326,7 @@ class _PayRestaurantScreenState extends State<PayRestaurantScreen> {
                                         const Spacer(),
                                         Text(
                                           PriceConverter.convertPrice(
-                                              total - walletBalance),
+                                              total - applicableWalletAmount), // Use applicable amount instead of full wallet balance
                                           textDirection: TextDirection.ltr,
                                           style: robotoMedium.copyWith(
                                               fontSize:
@@ -416,6 +434,9 @@ class _PayRestaurantScreenState extends State<PayRestaurantScreen> {
             }),
       bottomNavigationBar: isLoggedIn
           ? GetBuilder<CheckoutController>(builder: (checkoutController) {
+              // Calculate applicable wallet amount for validation
+              double applicableWalletAmount = getApplicableWalletAmount();
+              
               return Container(
                 padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                 decoration: BoxDecoration(
@@ -451,6 +472,7 @@ class _PayRestaurantScreenState extends State<PayRestaurantScreen> {
                                     isWalletActive: true,
                                     totalPrice: total,
                                     isOfflinePaymentActive: false,
+                                    isFromRestaurantPay: true,
                                   )));
                             } else {
                               showModalBottomSheet(
@@ -463,21 +485,26 @@ class _PayRestaurantScreenState extends State<PayRestaurantScreen> {
                                   isWalletActive: true,
                                   totalPrice: total,
                                   isOfflinePaymentActive: false,
+                                  isFromRestaurantPay: true,
                                 ),
                               );
                             }
                             return true;
-                          } else if (checkoutController.paymentMethodIndex ==
-                                  1 &&
-                              Get.find<ProfileController>().userInfoModel !=
-                                  null &&
-                              Get.find<ProfileController>()
-                                      .userInfoModel!
-                                      .walletBalance! <
-                                  total) {
+                          } else if (checkoutController.paymentMethodIndex == 1 &&
+                              checkoutController.isPartialPay &&
+                              applicableWalletAmount < total) {
+                            // Updated validation for partial payment with 5% limit
+                            if (applicableWalletAmount <= 0) {
+                              showCustomSnackBar(
+                                  'you_do_not_have_sufficient_balance_in_wallet'.tr);
+                              return true;
+                            }
+                          } else if (checkoutController.paymentMethodIndex == 1 &&
+                              !checkoutController.isPartialPay &&
+                              applicableWalletAmount < total) {
+                            // For full wallet payment, check if applicable amount covers the total
                             showCustomSnackBar(
-                                'you_do_not_have_sufficient_balance_in_wallet'
-                                    .tr);
+                                'you_do_not_have_sufficient_balance_in_wallet'.tr);
                             return true;
                           } else {
                             checkoutController.shanghaiPayment(

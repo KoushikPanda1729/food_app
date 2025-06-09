@@ -1281,5 +1281,6 @@
   "packaging_charge": "Packaging charge",
 
   "shanghai_payment_transactions": "Shanghai Payment Transactions",
-  "via": "via"
+  "via": "via",
+  "max_wallet_usage" : "Maximum Wallet Usage"
 }

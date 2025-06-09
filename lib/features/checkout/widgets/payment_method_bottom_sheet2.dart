@@ -23,6 +23,8 @@ class PaymentMethodBottomSheet2 extends StatefulWidget {
   final bool isWalletActive;
   final double totalPrice;
   final bool isSubscriptionPackage;
+  final bool isFromRestaurantPay;
+
   const PaymentMethodBottomSheet2(
       {super.key,
       required this.isCashOnDeliveryActive,
@@ -30,7 +32,8 @@ class PaymentMethodBottomSheet2 extends StatefulWidget {
       required this.isWalletActive,
       required this.totalPrice,
       this.isSubscriptionPackage = false,
-      required this.isOfflinePaymentActive});
+      required this.isOfflinePaymentActive,
+      this.isFromRestaurantPay = false});
 
   @override
   State<PaymentMethodBottomSheet2> createState() =>
@@ -59,14 +62,33 @@ class _PaymentMethodBottomSheet2State extends State<PaymentMethodBottomSheet2> {
     configurePartialPayment();
   }
 
+  // Calculate the maximum wallet amount that can be applied (5% for restaurant pay, 20% for regular orders)
+  double getMaxWalletAmount() {
+    double percentage = widget.isFromRestaurantPay ? 0.05 : 0.2; // 5% for restaurant pay, 20% for regular
+    return widget.totalPrice * percentage;
+  }
+
+  // Calculate the actual wallet amount to be applied
+  double getApplicableWalletAmount() {
+    double walletBalance = Get.find<ProfileController>().userInfoModel?.walletBalance ?? 0;
+    double maxAllowedAmount = getMaxWalletAmount();
+    
+    // Return the minimum of wallet balance and maximum allowed percentage of total amount
+    return walletBalance > maxAllowedAmount ? maxAllowedAmount : walletBalance;
+  }
+
   void configurePartialPayment() {
     if (!widget.isSubscriptionPackage &&
         !Get.find<AuthController>().isGuestLoggedIn()) {
       double walletBalance =
           Get.find<ProfileController>().userInfoModel!.walletBalance!;
-      if (walletBalance < widget.totalPrice) {
+      
+      // Check if wallet balance is less than the applicable amount (5% or 20% of total)
+      double applicableAmount = getApplicableWalletAmount();
+      if (applicableAmount < widget.totalPrice) {
         canSelectWallet = false;
       }
+      
       if (Get.find<CheckoutController>().isPartialPay) {
         notHideWallet = false;
         if (Get.find<SplashController>().configModel!.partialPaymentMethod! ==
@@ -116,7 +138,6 @@ class _PaymentMethodBottomSheet2State extends State<PaymentMethodBottomSheet2> {
                       ? Dimensions.radiusLarge
                       : 0)),
             ),
-            //padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               ResponsiveHelper.isDesktop(context)
                   ? Align(
@@ -156,7 +177,6 @@ class _PaymentMethodBottomSheet2State extends State<PaymentMethodBottomSheet2> {
                       horizontal: Dimensions.paddingSizeLarge,
                       vertical: Dimensions.paddingSizeSmall),
                   child: Column(
-                    // crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(bottom: 4, top: 13),
@@ -170,18 +190,6 @@ class _PaymentMethodBottomSheet2State extends State<PaymentMethodBottomSheet2> {
                               fontSize: 20,
                               color: Theme.of(context).primaryColor)),
                       const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                      // Align(alignment: Alignment.center, child: Text('payment_method'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge))),
-                      // const SizedBox(height: Dimensions.paddingSizeLarge),
-                      //
-                      // !widget.isSubscriptionPackage && notHideCod ? Text('choose_payment_method'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault)) : const SizedBox(),
-                      // SizedBox(height: !widget.isSubscriptionPackage && notHideCod ? Dimensions.paddingSizeExtraSmall : 0),
-                      //
-                      // !widget.isSubscriptionPackage && notHideCod ? Text(
-                      //   'click_one_of_the_option_below'.tr,
-                      //   style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor),
-                      // ) : const SizedBox(),
-                      // SizedBox(height: !widget.isSubscriptionPackage && notHideCod ? Dimensions.paddingSizeLarge : 0),
 
                       walletView(checkoutController),
 
@@ -202,50 +210,6 @@ class _PaymentMethodBottomSheet2State extends State<PaymentMethodBottomSheet2> {
                           : const SizedBox(),
 
                       changeAmountView(checkoutController),
-
-                      // !widget.isSubscriptionPackage ? Row(children: [
-                      //   // widget.isCashOnDeliveryActive && notHideCod ? Expanded(
-                      //   //   child: PaymentButtonNew(
-                      //   //     icon: Images.codIcon,
-                      //   //     title: 'cash_on_delivery'.tr,
-                      //   //     isSelected: checkoutController.paymentMethodIndex == 0,
-                      //   //     onTap: () {
-                      //   //       checkoutController.setPaymentMethod(0);
-                      //   //     },
-                      //   //   ),
-                      //   // ) : const SizedBox(),
-                      //   // SizedBox(width: widget.isWalletActive && notHideWallet && !checkoutController.subscriptionOrder && isLoggedIn ? Dimensions.paddingSizeLarge : 0),
-                      //
-                      //   widget.isWalletActive && notHideWallet && !checkoutController.subscriptionOrder && isLoggedIn ? Expanded(
-                      //     child: PaymentButtonNew(
-                      //       icon: Images.partialWallet,
-                      //       title: 'pay_via_wallet'.tr,
-                      //       isSelected: checkoutController.paymentMethodIndex == 1,
-                      //       onTap: () {
-                      //         if(canSelectWallet) {
-                      //           checkoutController.setPaymentMethod(1);
-                      //         } else if(checkoutController.isPartialPay){
-                      //           showCustomSnackBar('you_can_not_user_wallet_in_partial_payment'.tr);
-                      //           Get.back();
-                      //         } else{
-                      //           showCustomSnackBar('your_wallet_have_not_sufficient_balance'.tr);
-                      //           Get.back();
-                      //         }
-                      //       },
-                      //     ),
-                      //   ) : const SizedBox(),
-                      //
-                      // ]) : const SizedBox(),
-                      // const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                      // widget.isDigitalPaymentActive && notHideDigital && !checkoutController.subscriptionOrder ? Row(children: [
-                      //   Text('pay_via_online'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault)),
-                      //   Text(
-                      //     'faster_and_secure_way_to_pay_bill'.tr,
-                      //     style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor),
-                      //   ),
-                      // ]) : const SizedBox(),
-                      // SizedBox(height: widget.isDigitalPaymentActive && notHideDigital ? Dimensions.paddingSizeLarge : 0),
 
                       widget.isDigitalPaymentActive &&
                               notHideDigital &&
@@ -523,14 +487,21 @@ class _PaymentMethodBottomSheet2State extends State<PaymentMethodBottomSheet2> {
   Widget walletView(CheckoutController checkoutController) {
     double walletBalance =
         Get.find<ProfileController>().userInfoModel?.walletBalance ?? 0;
-    double balance = 0;
+    
+    // Calculate the applicable wallet amount (max 5% for restaurant pay, 20% for regular orders)
+    double applicableWalletAmount = getApplicableWalletAmount();
+    double balance = walletBalance; // Initialize with full wallet balance
+    
     if (walletBalance <= 0) {
       return const SizedBox();
     }
-    if (walletBalance > widget.totalPrice &&
-        checkoutController.paymentMethodIndex == 1) {
-      balance = walletBalance - widget.totalPrice;
+    
+    // Only calculate remaining balance when wallet is actually being used for payment
+    if (checkoutController.paymentMethodIndex == 1 || checkoutController.isPartialPay) {
+      balance = walletBalance - applicableWalletAmount;
     }
+    
+    // Determine if wallet is selected (either as primary payment or partial payment)
     bool isWalletSelected = checkoutController.paymentMethodIndex == 1 ||
         checkoutController.isPartialPay;
 
@@ -565,8 +536,7 @@ class _PaymentMethodBottomSheet2State extends State<PaymentMethodBottomSheet2> {
                                   fontSize: 12, color: Colors.grey.shade700)),
                           Row(children: [
                             Text(
-                              PriceConverter.convertPrice(
-                                  isWalletSelected ? balance : walletBalance),
+                              PriceConverter.convertPrice(isWalletSelected ? balance : walletBalance),
                               style: robotoMedium.copyWith(
                                   fontSize: Dimensions.fontSizeExtraLarge),
                             ),
@@ -590,7 +560,9 @@ class _PaymentMethodBottomSheet2State extends State<PaymentMethodBottomSheet2> {
                             checkoutController.changePartialPayment();
                           }
                           checkoutController.setPaymentMethod(1);
-                          if (walletBalance < widget.totalPrice) {
+                          
+                          // Always enable partial payment since we're limiting to 5% or 20%
+                          if (applicableWalletAmount < widget.totalPrice) {
                             checkoutController.changePartialPayment();
                           }
                         }
@@ -615,87 +587,97 @@ class _PaymentMethodBottomSheet2State extends State<PaymentMethodBottomSheet2> {
                     ),
                   ]),
             ),
-            if (isWalletSelected && !checkoutController.isPartialPay)
+            
+            // Show info about 5% or 20% limit when wallet is not selected
+            if (!isWalletSelected && walletBalance > 0)
               Container(
-                margin:
-                    const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+                margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).disabledColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                  border: Border.all(
+                    color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                    width: 0.5,
+                  ),
+                ),
+                child: Text(
+                  '${'max_wallet_usage'.tr}: ${PriceConverter.convertPrice(applicableWalletAmount)} (${widget.isFromRestaurantPay ? '5%' : '20%'} of total bill)',
+                  style: robotoRegular.copyWith(
+                    fontSize: 12,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          
+          if (isWalletSelected && !checkoutController.isPartialPay)
+            Container(
+              margin:
+                  const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+              decoration: BoxDecoration(
+                color: Theme.of(context).disabledColor.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+              ),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('paid_by_wallet'.tr,
+                        style: robotoBold.copyWith(fontSize: 14)),
+                    Text(PriceConverter.convertPrice(applicableWalletAmount),
+                        style: robotoMedium.copyWith(fontSize: 18))
+                  ]),
+            ),
+          if (isWalletSelected && checkoutController.isPartialPay)
+            Column(children: [
+              Container(
+                margin: const EdgeInsets.only(
+                    bottom: Dimensions.paddingSizeSmall),
+                decoration: BoxDecoration(
+                  color:
+                      Theme.of(context).disabledColor.withValues(alpha: 0.2),
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.radiusDefault),
                 ),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('paid_by_wallet'.tr,
-                          style: robotoBold.copyWith(fontSize: 14)),
-                      Text(PriceConverter.convertPrice(widget.totalPrice),
-                          style: robotoMedium.copyWith(fontSize: 18))
-                    ]),
+                child: Column(children: [
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('paid_by_wallet'.tr,
+                            style: robotoMedium.copyWith(
+                                fontSize: 14, color: Colors.grey.shade700)),
+                        Text(PriceConverter.convertPrice(applicableWalletAmount),
+                            style: robotoMedium.copyWith(
+                                fontSize: 14, color: Colors.grey.shade700))
+                      ]),
+                  const SizedBox(height: 5),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('remaining_bill'.tr,
+                            style: robotoMedium.copyWith(fontSize: 14)),
+                        Text(
+                            PriceConverter.convertPrice(
+                                widget.totalPrice - applicableWalletAmount),
+                            style: robotoBold.copyWith(fontSize: 18)),
+                      ])
+                ]),
               ),
-            if (isWalletSelected && checkoutController.isPartialPay)
-              Column(children: [
-                Container(
-                  margin: const EdgeInsets.only(
-                      bottom: Dimensions.paddingSizeSmall),
-                  decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).disabledColor.withValues(alpha: 0.2),
-                    borderRadius:
-                        BorderRadius.circular(Dimensions.radiusDefault),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-                  child: Column(children: [
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('paid_by_wallet'.tr,
-                              style: robotoMedium.copyWith(
-                                  fontSize: 14, color: Colors.grey.shade700)),
-                          Text(PriceConverter.convertPrice(walletBalance),
-                              style: robotoMedium.copyWith(
-                                  fontSize: 14, color: Colors.grey.shade700))
-                        ]),
-                    const SizedBox(height: 5),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('remaining_bill'.tr,
-                              style: robotoMedium.copyWith(fontSize: 14)),
-                          Text(
-                              PriceConverter.convertPrice(
-                                  widget.totalPrice - walletBalance),
-                              style: robotoBold.copyWith(fontSize: 18)),
-                        ])
-                  ]),
-                ),
-                if (checkoutController.paymentMethodIndex == 1)
-                  Text(
-                      '* ${'please_select_a_option_to_pay_remain_billing_amount'.tr}',
-                      style: robotoRegular.copyWith(
-                          fontSize: Dimensions.fontSizeSmall,
-                          color: const Color(0xFFE74B4B))),
-                const SizedBox(height: Dimensions.paddingSizeSmall),
-              ]),
-          ])
-        : const SizedBox();
+              if (checkoutController.paymentMethodIndex == 1)
+                Text(
+                    '* ${'please_select_a_option_to_pay_remain_billing_amount'.tr}',
+                    style: robotoRegular.copyWith(
+                        fontSize: Dimensions.fontSizeSmall,
+                        color: const Color(0xFFE74B4B))),
+              const SizedBox(height: Dimensions.paddingSizeSmall),
+            ]),
+        ])
+      : const SizedBox();
   }
 
-  // void _checkFormatters(String value) {
-  //   String test = '';
-  //   if(value.contains('-')) {
-  //     test = value.replaceAll('-', '');
-  //   } else if(value.contains(' ')) {
-  //     test = value.replaceAll(' ', '');
-  //   } else if(value.contains(',')) {
-  //     test = value.replaceAll(',', '');
-  //   } else {
-  //     test = value;
-  //   }
-  //   setState(() {
-  //     _amountController.text = test;
-  //   });
-  // }
+  
 }

@@ -9,6 +9,7 @@ import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 class PaymentSection extends StatelessWidget {
   final bool isCashOnDeliveryActive;
   final bool isDigitalPaymentActive;
@@ -16,12 +17,35 @@ class PaymentSection extends StatelessWidget {
   final bool isOfflinePaymentActive;
   final double total;
   final CheckoutController checkoutController;
-  const PaymentSection({super.key, required this.isCashOnDeliveryActive, required this.isDigitalPaymentActive,
-    required this.isWalletActive, required this.total, required this.checkoutController, required this.isOfflinePaymentActive, });
+  
+  const PaymentSection({
+    super.key, 
+    required this.isCashOnDeliveryActive, 
+    required this.isDigitalPaymentActive,
+    required this.isWalletActive, 
+    required this.total, 
+    required this.checkoutController, 
+    required this.isOfflinePaymentActive,
+  });
+
+  // Calculate the maximum wallet amount that can be applied (20% of total price)
+  double getMaxWalletAmount() {
+    return total * 0.2; // 20% of total amount
+  }
+
+  // Calculate the actual wallet amount to be applied
+  double getApplicableWalletAmount() {
+    double walletBalance = Get.find<ProfileController>().userInfoModel?.walletBalance ?? 0;
+    double maxAllowedAmount = getMaxWalletAmount();
+    
+    // Return the minimum of wallet balance and 20% of total amount
+    return walletBalance > maxAllowedAmount ? maxAllowedAmount : walletBalance;
+  }
 
   @override
   Widget build(BuildContext context) {
-    double walletBalance = Get.find<ProfileController>().userInfoModel?.walletBalance??0;
+    double walletBalance = Get.find<ProfileController>().userInfoModel?.walletBalance ?? 0;
+    double applicableWalletAmount = getApplicableWalletAmount();
 
     return Container(
       decoration: BoxDecoration(
@@ -62,12 +86,6 @@ class PaymentSection extends StatelessWidget {
         const Divider(),
 
         Container(
-          // decoration: ResponsiveHelper.isDesktop(context) ? BoxDecoration(
-          //   borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-          //   color: Theme.of(context).cardColor,
-          //   border: Border.all(color: Theme.of(context).disabledColor.withValues(alpha: 0.3), width: 1),
-          // ) : const BoxDecoration(),
-          // padding: ResponsiveHelper.isDesktop(context) ? const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall, horizontal: Dimensions.radiusDefault) : EdgeInsets.zero,
           child: checkoutController.paymentMethodIndex == 0 && !checkoutController.isPartialPay ? Row(children: [
             Image.asset(Images.cash , width: 20, height: 20,
               color: Theme.of(context).textTheme.bodyMedium!.color,
@@ -93,7 +111,8 @@ class PaymentSection extends StatelessWidget {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('paid_by_wallet'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall)),
               Text(
-                PriceConverter.convertPrice(walletBalance), textDirection: TextDirection.ltr,
+                PriceConverter.convertPrice(applicableWalletAmount), // Use applicable amount instead of full wallet balance
+                textDirection: TextDirection.ltr,
                 style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor),
               ),
             ]),
@@ -118,7 +137,8 @@ class PaymentSection extends StatelessWidget {
               const Spacer(),
 
               Text(
-                PriceConverter.convertPrice(total - walletBalance), textDirection: TextDirection.ltr,
+                PriceConverter.convertPrice(total - applicableWalletAmount), // Use applicable amount instead of full wallet balance
+                textDirection: TextDirection.ltr,
                 style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor),
               ),
             ]),

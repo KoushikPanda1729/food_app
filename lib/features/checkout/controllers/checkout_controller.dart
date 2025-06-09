@@ -458,14 +458,24 @@ class CheckoutController extends GetxController implements GetxService {
 
   Future<bool> checkBalanceStatus(double totalPrice, {double discount = 0, double extraCharge = 0}) async {
     totalPrice = (totalPrice - discount) + extraCharge;
+    double walletBalance = Get.find<ProfileController>().userInfoModel!.walletBalance!;
+    double applicableWalletAmount = getApplicableWalletAmount(totalPrice);
+    
     if(isPartialPay){
       changePartialPayment();
     }
     setPaymentMethod(-1);
-    debugPrint('--total : $totalPrice , compare balance : ${Get.find<ProfileController>().userInfoModel!.walletBalance! < totalPrice}');
-    if((Get.find<ProfileController>().userInfoModel!.walletBalance! < totalPrice) && (Get.find<ProfileController>().userInfoModel!.walletBalance! != 0.0)){
+    
+    debugPrint('--total : $totalPrice , wallet balance : $walletBalance, applicable amount: $applicableWalletAmount');
+    
+    // Check if applicable wallet amount is less than total (partial payment scenario)
+    if((applicableWalletAmount < totalPrice) && (applicableWalletAmount > 0)){
       Get.dialog(PartialPayDialog(isPartialPay: true, totalPrice: totalPrice), useSafeArea: false,);
-    }else{
+    } else if (applicableWalletAmount >= totalPrice) {
+      // Full payment possible with wallet (but limited to 20% rule)
+      Get.dialog(PartialPayDialog(isPartialPay: false, totalPrice: totalPrice), useSafeArea: false,);
+    } else {
+      // No wallet balance or insufficient
       Get.dialog(PartialPayDialog(isPartialPay: false, totalPrice: totalPrice), useSafeArea: false,);
     }
 
@@ -611,9 +621,20 @@ class CheckoutController extends GetxController implements GetxService {
   }
 
   Future<String> placeOrder(PlaceOrderBodyModel placeOrderBody, int? zoneID, double amount, double? maximumCodOrderAmount, bool fromCart,
-      bool isCashOnDeliveryActive, {bool isOfflinePay = false}) async {
+    bool isCashOnDeliveryActive, {bool isOfflinePay = false}) async {
     _isLoading = true;
     update();
+    
+    // Apply 20% wallet limit if partial payment is enabled
+    if (_isPartialPay && _paymentMethodIndex == 1) {
+      double applicableWalletAmount = getApplicableWalletAmount(amount);
+      // Update the order body with the correct wallet amount
+      // if (placeOrderBody.partialPayment != null) {
+      //   placeOrderBody.partialPayment!.paidWith = 'wallet';
+      //   placeOrderBody.partialPayment!.dueAmount = amount - applicableWalletAmount;
+      // }
+    }
+    
     String orderID = '';
     Response response = await checkoutServiceInterface.placeOrder(placeOrderBody);
     _isLoading = false;
@@ -647,6 +668,8 @@ class CheckoutController extends GetxController implements GetxService {
     update();
     return orderID;
   }
+
+
 
   void _callback(bool isSuccess, String? message, String orderID, int? zoneID, double amount, double? maximumCodOrderAmount, bool fromCart, bool isCashOnDeliveryActive,
       String? contactNumber, bool isDineInOrder, bool isDeliveryOrder) async {
@@ -722,12 +745,36 @@ class CheckoutController extends GetxController implements GetxService {
     return success;
   }
 
+  double getMaxWalletAmount(double totalPrice) {
+    return totalPrice * 0.2; // 20% of total amount
+  }
 
+  // Calculate the actual wallet amount to be applied
+  double getApplicableWalletAmount(double totalPrice) {
+    double walletBalance = Get.find<ProfileController>().userInfoModel?.walletBalance ?? 0;
+    double maxAllowedAmount = getMaxWalletAmount(totalPrice);
+    
+    // Return the minimum of wallet balance and 20% of total amount
+    return walletBalance > maxAllowedAmount ? maxAllowedAmount : walletBalance;
+  }
 
   Future<void> shanghaiPayment(String? amount, String? storeId) async {
     _isLoading = true;
     update();
-    Response response = await checkoutServiceInterface.shanghaiPayment(amount, (_paymentMethodIndex == 1 || _isPartialPay) ? '1' : '0', _digitalPaymentName, storeId);
+    
+    double totalAmount = double.parse(amount ?? '0');
+    String useWallet = '0';
+    
+    // Check if wallet payment or partial payment is selected
+    if (_paymentMethodIndex == 1 || _isPartialPay) {
+      double applicableWalletAmount = getApplicableWalletAmount(totalAmount);
+      useWallet = applicableWalletAmount > 0 ? '1' : '0';
+      
+      // Log for debugging
+      debugPrint('Shanghai Payment - Total: $totalAmount, Applicable Wallet: $applicableWalletAmount, Use Wallet: $useWallet');
+    }
+    
+    Response response = await checkoutServiceInterface.shanghaiPayment(amount, useWallet, _digitalPaymentName, storeId);
     if (response.statusCode == 200) {
       String redirectUrl = '';
       String status = '';
@@ -745,7 +792,6 @@ class CheckoutController extends GetxController implements GetxService {
         return;
       }
 
-
       if(redirectUrl == 'false') {
         showCustomSnackBar('payment_failed'.tr);
         _isLoading = false;
@@ -762,6 +808,5 @@ class CheckoutController extends GetxController implements GetxService {
     _isLoading = false;
     update();
   }
-
 
 }
